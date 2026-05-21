@@ -1,4 +1,5 @@
-import { router } from 'expo-router';
+import { router, Stack } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useGame } from '@/components/game-provider';
 import { useTheme, type ThemeMode } from '@/components/theme-provider';
@@ -13,110 +14,129 @@ const THEME_OPTIONS: { mode: ThemeMode; label: string; hint: string }[] = [
 export default function SettingsScreen() {
   const { submission, resetToday } = useGame();
   const { colors, mode, setMode } = useTheme();
+  const [titleVisible, setTitleVisible] = useState(false);
 
   return (
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={{
-        paddingHorizontal: space.lg,
-        paddingBottom: space.xl,
-        gap: space.xl,
-      }}
-      style={{ flex: 1, backgroundColor: colors.background }}
-    >
-      <Section title="Appearance">
-        <View
+    <>
+      <Stack.Screen options={{ title: titleVisible ? 'Settings' : '' }} />
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        scrollEventThrottle={16}
+        onScroll={(e) => setTitleVisible(e.nativeEvent.contentOffset.y > 52)}
+        contentContainerStyle={{
+          paddingHorizontal: space.lg,
+          paddingBottom: space.xl,
+          gap: space.xl,
+        }}
+        style={{ flex: 1, backgroundColor: colors.background }}
+      >
+        <Text
           style={{
-            backgroundColor: colors.surface,
-            borderWidth: 1,
-            borderColor: colors.line,
-            borderRadius: radius.slot,
-            borderCurve: 'continuous',
-            overflow: 'hidden',
+            fontSize: 34,
+            fontWeight: '700',
+            color: colors.text,
+            letterSpacing: 0.3,
+            paddingTop: space.xs,
+            paddingBottom: space.xs,
           }}
         >
-          {THEME_OPTIONS.map((opt, i) => {
-            const selected = mode === opt.mode;
-            return (
-              <Pressable
-                key={opt.mode}
-                onPress={() => setMode(opt.mode)}
-                style={({ pressed }) => ({
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingHorizontal: space.lg,
-                  paddingVertical: 14,
-                  borderBottomWidth: i === THEME_OPTIONS.length - 1 ? 0 : 1,
-                  borderBottomColor: colors.line,
-                  opacity: pressed ? 0.88 : 1,
-                })}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: type.body, color: colors.text, fontWeight: '500' }}>
-                    {opt.label}
-                  </Text>
-                  <Text style={{ fontSize: type.small, color: colors.muted, marginTop: 2 }}>
-                    {opt.hint}
-                  </Text>
-                </View>
-                <Text
-                  style={{
-                    fontSize: 20,
-                    color: selected ? colors.accent : 'transparent',
-                    fontWeight: '600',
-                  }}
-                >
-                  ✓
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </Section>
-
-      <Section title="Account">
-        <Row label="Anonymous player" />
-      </Section>
-
-      <Section title="About">
-        <Text style={{ fontSize: type.body, color: colors.text, lineHeight: 24 }}>
-          One word. One day. One shared length.
+          Settings
         </Text>
-      </Section>
 
-      <Section title="Prototype">
-        <Pressable
-          onPress={() => {
-            resetToday();
-            router.replace('/');
-          }}
-          disabled={!submission}
-          style={({ pressed }) => ({
-            backgroundColor: colors.surface,
-            borderWidth: 1,
-            borderColor: colors.line,
-            borderRadius: radius.button,
-            borderCurve: 'continuous',
-            paddingVertical: 14,
-            paddingHorizontal: space.lg,
-            opacity: pressed ? 0.88 : 1,
-          })}
-        >
-          <Text
+        <Section title="Appearance">
+          <View
             style={{
-              fontSize: type.body,
-              fontWeight: '600',
-              color: submission ? colors.accent2 : colors.muted,
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.line,
+              borderRadius: radius.slot,
+              borderCurve: 'continuous',
+              overflow: 'hidden',
             }}
           >
-            Reset today's word
+            {THEME_OPTIONS.map((opt, i) => {
+              const selected = mode === opt.mode;
+              return (
+                <Pressable
+                  key={opt.mode}
+                  onPress={() => setMode(opt.mode)}
+                  style={({ pressed }) => ({
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingHorizontal: space.lg,
+                    paddingVertical: 14,
+                    borderBottomWidth: i === THEME_OPTIONS.length - 1 ? 0 : 1,
+                    borderBottomColor: colors.line,
+                    opacity: pressed ? 0.88 : 1,
+                  })}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: type.body, color: colors.text, fontWeight: '500' }}>
+                      {opt.label}
+                    </Text>
+                    <Text style={{ fontSize: type.small, color: colors.muted, marginTop: 2 }}>
+                      {opt.hint}
+                    </Text>
+                  </View>
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      color: selected ? colors.accent : 'transparent',
+                      fontWeight: '600',
+                    }}
+                  >
+                    ✓
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Section>
+
+        <Section title="Account">
+          <Row label="Anonymous player" />
+        </Section>
+
+        <Section title="About">
+          <Text style={{ fontSize: type.body, color: colors.text, lineHeight: 24 }}>
+            One word. One day. One shared length.
           </Text>
-          <Text style={{ fontSize: type.small, color: colors.muted, marginTop: 2 }}>
-            Dev only — clears your mock submission so you can re-try the loop.
-          </Text>
-        </Pressable>
-      </Section>
-    </ScrollView>
+        </Section>
+
+        <Section title="Prototype">
+          <Pressable
+            onPress={() => {
+              resetToday();
+              router.replace('/');
+            }}
+            disabled={!submission}
+            style={({ pressed }) => ({
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.line,
+              borderRadius: radius.button,
+              borderCurve: 'continuous',
+              paddingVertical: 14,
+              paddingHorizontal: space.lg,
+              opacity: pressed ? 0.88 : 1,
+            })}
+          >
+            <Text
+              style={{
+                fontSize: type.body,
+                fontWeight: '600',
+                color: submission ? colors.accent2 : colors.muted,
+              }}
+            >
+              Reset today's word
+            </Text>
+            <Text style={{ fontSize: type.small, color: colors.muted, marginTop: 2 }}>
+              Dev only — clears your mock submission so you can re-try the loop.
+            </Text>
+          </Pressable>
+        </Section>
+      </ScrollView>
+    </>
   );
 }
 

@@ -24,11 +24,8 @@ function ThemedShell() {
       <Stack
         screenOptions={{
           headerShadowVisible: false,
-          headerLargeTitleShadowVisible: false,
-          headerLargeStyle: { backgroundColor: colors.background },
           headerStyle: { backgroundColor: colors.background },
           headerTitleStyle: { color: colors.text },
-          headerLargeTitleStyle: { color: colors.text },
           headerTintColor: colors.accent,
           headerBackButtonDisplayMode: 'minimal',
           contentStyle: { backgroundColor: colors.background },
@@ -36,9 +33,9 @@ function ThemedShell() {
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="result" options={{ headerShown: false }} />
-        <Stack.Screen name="top-words" options={{ title: 'Top Words', headerLargeTitle: true }} />
-        <Stack.Screen name="history" options={{ title: 'History', headerLargeTitle: true }} />
-        <Stack.Screen name="settings" options={{ title: 'Settings', headerLargeTitle: true }} />
+        <Stack.Screen name="top-words" options={{ title: '' }} />
+        <Stack.Screen name="history" options={{ title: '' }} />
+        <Stack.Screen name="settings" options={{ title: '' }} />
       </Stack>
     </>
   );
