@@ -21,7 +21,7 @@ export default function TopWordsScreen() {
           padding: space.lg,
           gap: space.lg,
         }}
-        style={{ backgroundColor: colors.background }}
+        style={{ flex: 1, backgroundColor: colors.background }}
       >
         <Text
           style={{
@@ -45,7 +45,7 @@ export default function TopWordsScreen() {
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={{ paddingHorizontal: space.lg, paddingBottom: space.xl, gap: space.md }}
-      style={{ backgroundColor: colors.background }}
+      style={{ flex: 1, backgroundColor: colors.background }}
     >
       <Text style={{ fontSize: type.label, color: colors.muted, fontWeight: '500' }}>
         {requiredLength} letters today

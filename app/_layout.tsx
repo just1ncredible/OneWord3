@@ -28,6 +28,7 @@ function ThemedShell() {
           headerLargeStyle: { backgroundColor: colors.background },
           headerStyle: { backgroundColor: colors.background },
           headerTitleStyle: { color: colors.text },
+          headerLargeTitleStyle: { color: colors.text },
           headerTintColor: colors.accent,
           headerBackButtonDisplayMode: 'minimal',
           contentStyle: { backgroundColor: colors.background },

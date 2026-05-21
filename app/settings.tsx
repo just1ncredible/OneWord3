@@ -22,7 +22,7 @@ export default function SettingsScreen() {
         paddingBottom: space.xl,
         gap: space.xl,
       }}
-      style={{ backgroundColor: colors.background }}
+      style={{ flex: 1, backgroundColor: colors.background }}
     >
       <Section title="Appearance">
         <View

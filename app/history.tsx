@@ -43,7 +43,7 @@ export default function HistoryScreen() {
           alignItems: 'center',
           padding: space.lg,
         }}
-        style={{ backgroundColor: colors.background }}
+        style={{ flex: 1, backgroundColor: colors.background }}
       >
         <Text style={{ fontSize: type.body, color: colors.muted, textAlign: 'center' }}>
           Your words will collect here.
@@ -60,7 +60,7 @@ export default function HistoryScreen() {
         paddingBottom: space.xl,
         gap: space.sm,
       }}
-      style={{ backgroundColor: colors.background }}
+      style={{ flex: 1, backgroundColor: colors.background }}
     >
       <View
         style={{
