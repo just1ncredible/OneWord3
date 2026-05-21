@@ -1,0 +1,149 @@
+import { Link, Redirect, router } from 'expo-router';
+import { useState } from 'react';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useGame } from '@/components/game-provider';
+import { PrimaryButton } from '@/components/primary-button';
+import { useTheme } from '@/components/theme-provider';
+import { WordInput } from '@/components/word-input';
+import { Wordmark } from '@/components/wordmark';
+import { space, type } from '@/constants/theme';
+import { notifySuccess, notifyWarning, tapMedium, tapSelection } from '@/lib/haptics';
+import { validateWord } from '@/lib/validation';
+
+export default function TodayScreen() {
+  const { requiredLength, submission, submitWord } = useGame();
+  const { colors } = useTheme();
+  const [word, setWord] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const insets = useSafeAreaInsets();
+
+  if (submission) {
+    return <Redirect href="/result" />;
+  }
+
+  const validation = validateWord(word, requiredLength);
+  const isValid = validation.valid;
+  const helperText = error
+    ? error
+    : word.length === 0
+      ? 'One word. Lock it in.'
+      : isValid
+        ? 'Ready.'
+        : !validation.valid
+          ? validation.reason
+          : '';
+
+  async function handleSubmit() {
+    setError(null);
+    setSubmitting(true);
+    notifySuccess();
+    const res = await submitWord(word);
+    if (!res.ok) {
+      notifyWarning();
+      setError(res.reason);
+      setSubmitting(false);
+      return;
+    }
+    router.replace('/result');
+  }
+
+  return (
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      keyboardDismissMode="interactive"
+      contentContainerStyle={{
+        flexGrow: 1,
+        paddingTop: insets.top + space.lg,
+        paddingBottom: insets.bottom + space.lg,
+        paddingHorizontal: space.lg,
+      }}
+      style={{ backgroundColor: colors.background }}
+    >
+      <View style={{ alignItems: 'center' }}>
+        <Wordmark size={22} />
+      </View>
+
+      <View style={{ flex: 1, justifyContent: 'center', gap: space.xl, paddingVertical: space.xxl }}>
+        <View style={{ alignItems: 'center', gap: space.sm }}>
+          <Text
+            style={{
+              fontSize: type.label,
+              color: colors.muted,
+              letterSpacing: 1.6,
+              textTransform: 'uppercase',
+              fontWeight: '600',
+            }}
+          >
+            Today
+          </Text>
+          <Text
+            style={{
+              fontSize: type.dailyLength,
+              fontWeight: '700',
+              color: colors.text,
+              letterSpacing: -2,
+            }}
+          >
+            {requiredLength} letters
+          </Text>
+        </View>
+
+        <WordInput
+          value={word}
+          onChangeText={(next) => {
+            setError(null);
+            if (next.length > word.length) tapSelection();
+            const wasValid = isValid;
+            setWord(next);
+            const nextValid = validateWord(next, requiredLength).valid;
+            if (!wasValid && nextValid) tapMedium();
+          }}
+          length={requiredLength}
+          disabled={submitting}
+          onSubmitEditing={() => {
+            if (isValid && !submitting) handleSubmit();
+          }}
+        />
+
+        <Text
+          style={{
+            fontSize: type.label,
+            color: error ? colors.error : colors.muted,
+            textAlign: 'center',
+            minHeight: 20,
+          }}
+        >
+          {helperText}
+        </Text>
+      </View>
+
+      <View style={{ gap: space.lg }}>
+        <PrimaryButton
+          label="Lock In"
+          onPress={handleSubmit}
+          disabled={!isValid}
+          loading={submitting}
+        />
+
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Link href="/history" asChild>
+            <Pressable hitSlop={10}>
+              <Text style={{ fontSize: type.label, color: colors.muted, fontWeight: '500' }}>
+                History
+              </Text>
+            </Pressable>
+          </Link>
+          <Link href="/settings" asChild>
+            <Pressable hitSlop={10}>
+              <Text style={{ fontSize: type.label, color: colors.muted, fontWeight: '500' }}>
+                Settings
+              </Text>
+            </Pressable>
+          </Link>
+        </View>
+      </View>
+    </ScrollView>
+  );
+}
