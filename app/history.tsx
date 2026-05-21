@@ -1,6 +1,13 @@
 import { Stack } from 'expo-router';
-import { useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { useCallback } from 'react';
+import { Text, View } from 'react-native';
+import Animated, {
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  type SharedValue,
+} from 'react-native-reanimated';
 import { useGame, type HistoryEntry } from '@/components/game-provider';
 import { useTheme } from '@/components/theme-provider';
 import { radius, space, type } from '@/constants/theme';
@@ -19,10 +26,33 @@ function placementShort(entry: HistoryEntry): string {
   return `Wave — ${s.totalForWord.toLocaleString()} chose it`;
 }
 
+function AnimatedHeaderTitle({ scrollY }: { scrollY: SharedValue<number> }) {
+  const { colors } = useTheme();
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollY.value, [20, 52], [0, 1], 'clamp'),
+  }));
+  return (
+    <Animated.Text
+      style={[{ fontSize: type.body, fontWeight: '600', color: colors.text }, animatedStyle]}
+    >
+      History
+    </Animated.Text>
+  );
+}
+
 export default function HistoryScreen() {
   const { history, submission } = useGame();
   const { colors } = useTheme();
-  const [titleVisible, setTitleVisible] = useState(false);
+  const scrollY = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    scrollY.value = event.contentOffset.y;
+  });
+
+  const headerTitle = useCallback(
+    () => <AnimatedHeaderTitle scrollY={scrollY} />,
+    [scrollY],
+  );
 
   const entries: HistoryEntry[] = submission
     ? [
@@ -38,11 +68,11 @@ export default function HistoryScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: titleVisible ? 'History' : '' }} />
-      <ScrollView
+      <Stack.Screen options={{ headerTitle, title: '' }} />
+      <Animated.ScrollView
         contentInsetAdjustmentBehavior="automatic"
+        onScroll={scrollHandler}
         scrollEventThrottle={16}
-        onScroll={(e) => setTitleVisible(e.nativeEvent.contentOffset.y > 52)}
         contentContainerStyle={{
           paddingHorizontal: space.lg,
           paddingBottom: space.xl,
@@ -116,7 +146,7 @@ export default function HistoryScreen() {
             ))}
           </View>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
     </>
   );
 }

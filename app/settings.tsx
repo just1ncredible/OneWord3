@@ -1,6 +1,13 @@
 import { router, Stack } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useCallback } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import Animated, {
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  type SharedValue,
+} from 'react-native-reanimated';
 import { useGame } from '@/components/game-provider';
 import { useTheme, type ThemeMode } from '@/components/theme-provider';
 import { radius, space, type } from '@/constants/theme';
@@ -11,18 +18,41 @@ const THEME_OPTIONS: { mode: ThemeMode; label: string; hint: string }[] = [
   { mode: 'dark', label: 'Dark', hint: 'Quiet ink' },
 ];
 
+function AnimatedHeaderTitle({ scrollY }: { scrollY: SharedValue<number> }) {
+  const { colors } = useTheme();
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollY.value, [20, 52], [0, 1], 'clamp'),
+  }));
+  return (
+    <Animated.Text
+      style={[{ fontSize: type.body, fontWeight: '600', color: colors.text }, animatedStyle]}
+    >
+      Settings
+    </Animated.Text>
+  );
+}
+
 export default function SettingsScreen() {
   const { submission, resetToday } = useGame();
   const { colors, mode, setMode } = useTheme();
-  const [titleVisible, setTitleVisible] = useState(false);
+  const scrollY = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    scrollY.value = event.contentOffset.y;
+  });
+
+  const headerTitle = useCallback(
+    () => <AnimatedHeaderTitle scrollY={scrollY} />,
+    [scrollY],
+  );
 
   return (
     <>
-      <Stack.Screen options={{ title: titleVisible ? 'Settings' : '' }} />
-      <ScrollView
+      <Stack.Screen options={{ headerTitle, title: '' }} />
+      <Animated.ScrollView
         contentInsetAdjustmentBehavior="automatic"
+        onScroll={scrollHandler}
         scrollEventThrottle={16}
-        onScroll={(e) => setTitleVisible(e.nativeEvent.contentOffset.y > 52)}
         contentContainerStyle={{
           paddingHorizontal: space.lg,
           paddingBottom: space.xl,
@@ -135,7 +165,7 @@ export default function SettingsScreen() {
             </Text>
           </Pressable>
         </Section>
-      </ScrollView>
+      </Animated.ScrollView>
     </>
   );
 }
