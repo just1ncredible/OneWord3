@@ -4,6 +4,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGame } from '@/components/game-provider';
+import { PrimaryButton } from '@/components/primary-button';
 import { StatRow } from '@/components/stat-block';
 import { useTheme } from '@/components/theme-provider';
 import { Wordmark } from '@/components/wordmark';
@@ -145,26 +146,13 @@ export default function ResultScreen() {
         entering={FadeInDown.delay(640).duration(420)}
         style={{ gap: space.md }}
       >
-        <Pressable
+        <PrimaryButton
+          label="See Top Words"
           onPress={() => {
             tapLight();
             router.push('/top-words');
           }}
-          style={({ pressed }) => ({
-            backgroundColor: colors.surface,
-            borderWidth: 1,
-            borderColor: colors.line,
-            borderRadius: 10,
-            borderCurve: 'continuous',
-            paddingVertical: 16,
-            alignItems: 'center',
-            opacity: pressed ? 0.85 : 1,
-          })}
-        >
-          <Text style={{ fontSize: type.body, color: colors.accent, fontWeight: '600' }}>
-            See Top Words
-          </Text>
-        </Pressable>
+        />
 
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Link href="/history" asChild>
@@ -227,7 +215,7 @@ function PlacementLine({
   return (
     <Text style={baseStyle}>
       You joined <Text style={emphasisStyle}>{placement.otherCount}</Text> people on{' '}
-      <Text style={boldStyle}>"{placement.word}."</Text>
+      <Text style={boldStyle}>"{placement.word}"</Text> today.
     </Text>
   );
 }

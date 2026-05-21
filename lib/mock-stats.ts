@@ -12,10 +12,10 @@ export type WordStats = {
 export const MOCK_TOTAL_SUBMISSIONS_TODAY = 4286;
 
 export const MOCK_TOP_WORDS_TODAY: { word: string; count: number }[] = [
-  { word: 'tired', count: 842 },
+  { word: 'gentle', count: 842 },
   { word: 'steady', count: 618 },
   { word: 'bright', count: 402 },
-  { word: 'quiet', count: 391 },
+  { word: 'wonder', count: 391 },
   { word: 'almost', count: 355 },
   { word: 'winter', count: 312 },
   { word: 'silent', count: 287 },

@@ -1,6 +1,6 @@
 import { Link, Redirect, router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Keyboard, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGame } from '@/components/game-provider';
 import { PrimaryButton } from '@/components/primary-button';
@@ -31,9 +31,7 @@ export default function TodayScreen() {
       ? 'One word. Lock it in.'
       : isValid
         ? 'Ready.'
-        : !validation.valid
-          ? validation.reason
-          : '';
+        : `${word.length} of ${requiredLength}`;
 
   async function handleSubmit() {
     setError(null);
@@ -50,16 +48,15 @@ export default function TodayScreen() {
   }
 
   return (
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      keyboardDismissMode="interactive"
-      contentContainerStyle={{
-        flexGrow: 1,
+    <Pressable
+      onPress={Keyboard.dismiss}
+      style={{
+        flex: 1,
+        backgroundColor: colors.background,
         paddingTop: insets.top + space.lg,
         paddingBottom: insets.bottom + space.lg,
         paddingHorizontal: space.lg,
       }}
-      style={{ backgroundColor: colors.background }}
     >
       <View style={{ alignItems: 'center' }}>
         <Wordmark size={22} />
@@ -91,6 +88,7 @@ export default function TodayScreen() {
         </View>
 
         <WordInput
+          autoFocus={false}
           value={word}
           onChangeText={(next) => {
             setError(null);
@@ -144,6 +142,6 @@ export default function TodayScreen() {
           </Link>
         </View>
       </View>
-    </ScrollView>
+    </Pressable>
   );
 }
