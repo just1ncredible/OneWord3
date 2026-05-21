@@ -23,7 +23,6 @@ function ThemedShell() {
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
-          headerTransparent: true,
           headerShadowVisible: false,
           headerLargeTitleShadowVisible: false,
           headerLargeStyle: { backgroundColor: colors.background },
@@ -31,7 +30,6 @@ function ThemedShell() {
           headerTitleStyle: { color: colors.text },
           headerTintColor: colors.accent,
           headerBackButtonDisplayMode: 'minimal',
-          headerBlurEffect: 'none',
           contentStyle: { backgroundColor: colors.background },
         }}
       >
