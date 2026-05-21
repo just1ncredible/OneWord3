@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { useGame } from '@/components/game-provider';
+import { PrimaryButton } from '@/components/primary-button';
 import { useTheme } from '@/components/theme-provider';
 import { radius, space, type } from '@/constants/theme';
 import { MOCK_TOP_WORDS_TODAY } from '@/lib/mock-stats';
@@ -32,21 +33,7 @@ export default function TopWordsScreen() {
         >
           Choose today's word first.
         </Text>
-        <Pressable
-          onPress={() => router.replace('/')}
-          style={({ pressed }) => ({
-            backgroundColor: colors.accent,
-            paddingVertical: 14,
-            paddingHorizontal: 24,
-            borderRadius: radius.button,
-            borderCurve: 'continuous',
-            opacity: pressed ? 0.88 : 1,
-          })}
-        >
-          <Text style={{ color: colors.onAccent, fontSize: type.body, fontWeight: '600' }}>
-            Go to Today
-          </Text>
-        </Pressable>
+        <PrimaryButton label="Go to Today" onPress={() => router.replace('/')} />
       </ScrollView>
     );
   }

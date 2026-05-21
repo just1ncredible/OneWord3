@@ -48,7 +48,7 @@ export default function SettingsScreen() {
                   paddingVertical: 14,
                   borderBottomWidth: i === THEME_OPTIONS.length - 1 ? 0 : 1,
                   borderBottomColor: colors.line,
-                  opacity: pressed ? 0.7 : 1,
+                  opacity: pressed ? 0.88 : 1,
                 })}
               >
                 <View style={{ flex: 1 }}>
@@ -99,7 +99,7 @@ export default function SettingsScreen() {
             borderCurve: 'continuous',
             paddingVertical: 14,
             paddingHorizontal: space.lg,
-            opacity: pressed ? 0.85 : 1,
+            opacity: pressed ? 0.88 : 1,
           })}
         >
           <Text

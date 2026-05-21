@@ -1,6 +1,6 @@
 import { Link, Redirect, router } from 'expo-router';
 import { useEffect } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGame } from '@/components/game-provider';
@@ -13,18 +13,22 @@ import { tapLight } from '@/lib/haptics';
 import type { WordStats } from '@/lib/mock-stats';
 
 type Placement =
-  | { kind: 'started'; word: string }
-  | { kind: 'rank'; rank: number; word: string }
-  | { kind: 'joined'; otherCount: number; word: string };
+  | { kind: 'original'; word: string }
+  | { kind: 'rare'; total: number; word: string }
+  | { kind: 'early'; rank: number; word: string }
+  | { kind: 'wave'; otherCount: number; word: string };
 
 function describePlacement(stats: WordStats): Placement {
-  if (stats.isFirst || stats.wordRank === 1) {
-    return { kind: 'started', word: stats.word };
+  if (stats.totalForWord === 1) {
+    return { kind: 'original', word: stats.word };
   }
-  if (stats.wordRank > 10) {
-    return { kind: 'joined', otherCount: stats.totalForWord - 1, word: stats.word };
+  if (stats.totalForWord <= 5) {
+    return { kind: 'rare', total: stats.totalForWord, word: stats.word };
   }
-  return { kind: 'rank', rank: stats.wordRank, word: stats.word };
+  if (stats.wordRank <= 10) {
+    return { kind: 'early', rank: stats.wordRank, word: stats.word };
+  }
+  return { kind: 'wave', otherCount: stats.totalForWord - 1, word: stats.word };
 }
 
 function formatPercent(p: number) {
@@ -67,15 +71,14 @@ export default function ResultScreen() {
   const placement = describePlacement(stats);
 
   return (
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={{
-        flexGrow: 1,
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: colors.background,
         paddingTop: insets.top + space.lg,
         paddingBottom: insets.bottom + space.lg,
         paddingHorizontal: space.lg,
       }}
-      style={{ backgroundColor: colors.background }}
     >
       <View style={{ alignItems: 'center' }}>
         <Wordmark size={22} />
@@ -127,19 +130,6 @@ export default function ResultScreen() {
           />
         </Animated.View>
 
-        {stats.isFirst ? (
-          <Animated.Text
-            entering={FadeInDown.delay(640).duration(420)}
-            style={{
-              fontSize: type.label,
-              color: colors.muted,
-              textAlign: 'center',
-              fontStyle: 'italic',
-            }}
-          >
-            Still only yours.
-          </Animated.Text>
-        ) : null}
       </View>
 
       <Animated.View
@@ -171,7 +161,7 @@ export default function ResultScreen() {
           </Link>
         </View>
       </Animated.View>
-    </ScrollView>
+    </View>
   );
 }
 
@@ -196,25 +186,35 @@ function PlacementLine({
     fontVariant: ['tabular-nums' as const],
   };
 
-  if (placement.kind === 'started') {
+  if (placement.kind === 'original') {
     return (
       <Text style={baseStyle}>
-        You <Text style={emphasisStyle}>started</Text>{' '}
+        <Text style={boldStyle}>Original.</Text> Yours alone today.
+      </Text>
+    );
+  }
+  if (placement.kind === 'rare') {
+    return (
+      <Text style={baseStyle}>
+        <Text style={boldStyle}>Rare.</Text> Only{' '}
+        <Text style={emphasisStyle}>{placement.total}</Text> of you wrote{' '}
         <Text style={boldStyle}>"{placement.word}"</Text> today.
       </Text>
     );
   }
-  if (placement.kind === 'rank') {
+  if (placement.kind === 'early') {
     return (
       <Text style={baseStyle}>
-        You were <Text style={emphasisStyle}>#{placement.rank}</Text> for{' '}
+        <Text style={boldStyle}>Early.</Text> You were{' '}
+        <Text style={emphasisStyle}>#{placement.rank}</Text> for{' '}
         <Text style={boldStyle}>"{placement.word}"</Text> today.
       </Text>
     );
   }
   return (
     <Text style={baseStyle}>
-      You joined <Text style={emphasisStyle}>{placement.otherCount}</Text> people on{' '}
+      <Text style={boldStyle}>Wave.</Text> You and{' '}
+      <Text style={emphasisStyle}>{placement.otherCount}</Text> others on{' '}
       <Text style={boldStyle}>"{placement.word}"</Text> today.
     </Text>
   );

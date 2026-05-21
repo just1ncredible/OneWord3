@@ -11,9 +11,10 @@ function formatDate(iso: string) {
 
 function placementShort(entry: HistoryEntry): string {
   const s = entry.stats;
-  if (s.isFirst || s.wordRank === 1) return 'You started it';
-  if (s.wordRank > 10) return `${s.totalForWord} chose it`;
-  return `#${s.wordRank} for this word`;
+  if (s.totalForWord === 1) return 'Original — yours alone';
+  if (s.totalForWord <= 5) return `Rare — ${s.totalForWord} chose it`;
+  if (s.wordRank <= 10) return `Early — #${s.wordRank} for this word`;
+  return `Wave — ${s.totalForWord.toLocaleString()} chose it`;
 }
 
 export default function HistoryScreen() {
