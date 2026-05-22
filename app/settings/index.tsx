@@ -21,7 +21,7 @@ const THEME_OPTIONS: { mode: ThemeMode; label: string; hint: string }[] = [
 function AnimatedHeaderTitle({ scrollY }: { scrollY: SharedValue<number> }) {
   const { colors } = useTheme();
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.value, [20, 52], [0, 1], 'clamp'),
+    opacity: interpolate(scrollY.value, [44, 68], [0, 1], 'clamp'),
   }));
   return (
     <View pointerEvents="none">
