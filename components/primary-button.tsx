@@ -19,9 +19,10 @@ export function PrimaryButton({ label, onPress, disabled, loading }: Props) {
       style={({ pressed }) => ({
         backgroundColor: isInactive ? colors.disabled : colors.accent,
         paddingVertical: 16,
-        paddingHorizontal: 24,
+        paddingHorizontal: 40,
         borderRadius: radius.button,
         borderCurve: 'continuous',
+        alignSelf: 'center',
         alignItems: 'center',
         justifyContent: 'center',
         opacity: pressed ? 0.88 : 1,

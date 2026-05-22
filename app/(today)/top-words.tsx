@@ -83,7 +83,7 @@ export default function TopWordsScreen() {
         </Text>
 
         {!submission ? (
-          <View style={{ gap: space.lg, alignItems: 'flex-start' }}>
+          <View style={{ gap: space.lg }}>
             <Text style={{ fontSize: type.body, color: colors.muted, fontWeight: '500' }}>
               Choose today's word first.
             </Text>
