@@ -1,11 +1,11 @@
 import { Redirect, router } from 'expo-router';
 import { useEffect } from 'react';
 import { Text, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGame } from '@/components/game-provider';
 import { PrimaryButton } from '@/components/primary-button';
-import { StatRow } from '@/components/stat-block';
+import { AnimatedStatRow } from '@/components/stat-block';
 import { useTheme } from '@/components/theme-provider';
 import { Wordmark } from '@/components/wordmark';
 import { space, type } from '@/constants/theme';
@@ -83,11 +83,11 @@ export default function ResultScreen() {
         <Wordmark size={22} />
       </View>
 
-      <View style={{ gap: space.xl, paddingVertical: space.xxl }}>
-        <Animated.View
-          entering={FadeInDown.duration(450).springify().damping(16)}
-          style={{ alignItems: 'center', gap: space.lg }}
-        >
+      <Animated.View
+        entering={FadeIn.duration(800)}
+        style={{ gap: space.xl, paddingVertical: space.xxl }}
+      >
+        <View style={{ alignItems: 'center', gap: space.lg }}>
           <Text
             style={{
               fontSize: type.small,
@@ -110,35 +110,40 @@ export default function ResultScreen() {
           >
             {stats.word}
           </Text>
-        </Animated.View>
+        </View>
 
-        <Animated.View
-          entering={FadeInDown.delay(220).duration(420).springify().damping(18)}
-          style={{ alignItems: 'center', paddingHorizontal: space.lg }}
-        >
+        <View style={{ alignItems: 'center', paddingHorizontal: space.lg }}>
           <PlacementLine placement={placement} colors={colors} />
-        </Animated.View>
+        </View>
 
-        <Animated.View entering={FadeInDown.delay(420).duration(420).springify().damping(18)}>
-          <StatRow
-            stats={[
-              { value: stats.totalForWord.toLocaleString(), label: 'chose it' },
-              { value: stats.overallRank ? `#${stats.overallRank}` : '—', label: 'today' },
-              { value: formatPercent(stats.percentOfPlayers), label: 'of players' },
-            ]}
-          />
-        </Animated.View>
+        <AnimatedStatRow
+          stats={[
+            {
+              numericValue: stats.totalForWord,
+              format: (n) => Math.round(n).toLocaleString(),
+              label: 'chose it',
+            },
+            {
+              numericValue: stats.overallRank ?? null,
+              format: (n) => `#${Math.round(n)}`,
+              label: 'today',
+            },
+            {
+              numericValue: stats.percentOfPlayers,
+              format: (n) => formatPercent(n),
+              label: 'of players',
+            },
+          ]}
+        />
 
-        <Animated.View entering={FadeInDown.delay(640).duration(420)}>
-          <PrimaryButton
-            label="See Top Words"
-            onPress={() => {
-              tapLight();
-              router.push('/top-words');
-            }}
-          />
-        </Animated.View>
-      </View>
+        <PrimaryButton
+          label="See Top Words"
+          onPress={() => {
+            tapLight();
+            router.push('/top-words');
+          }}
+        />
+      </Animated.View>
     </View>
   );
 }
