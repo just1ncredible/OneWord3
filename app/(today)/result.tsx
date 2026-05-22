@@ -75,16 +75,15 @@ export default function ResultScreen() {
       style={{
         flex: 1,
         backgroundColor: colors.background,
-        paddingTop: insets.top + space.lg,
-        paddingBottom: space.lg,
         paddingHorizontal: space.lg,
+        justifyContent: 'center',
       }}
     >
-      <View style={{ alignItems: 'center' }}>
+      <View style={{ position: 'absolute', top: insets.top + space.lg, left: 0, right: 0, alignItems: 'center' }}>
         <Wordmark size={22} />
       </View>
 
-      <View style={{ flex: 1, justifyContent: 'center', gap: space.xl, paddingVertical: space.xxl }}>
+      <View style={{ gap: space.xl, paddingVertical: space.xxl }}>
         <Animated.View
           entering={FadeInDown.duration(450).springify().damping(16)}
           style={{ alignItems: 'center', gap: space.lg }}
@@ -130,17 +129,16 @@ export default function ResultScreen() {
           />
         </Animated.View>
 
+        <Animated.View entering={FadeInDown.delay(640).duration(420)}>
+          <PrimaryButton
+            label="See Top Words"
+            onPress={() => {
+              tapLight();
+              router.push('/top-words');
+            }}
+          />
+        </Animated.View>
       </View>
-
-      <Animated.View entering={FadeInDown.delay(640).duration(420)}>
-        <PrimaryButton
-          label="See Top Words"
-          onPress={() => {
-            tapLight();
-            router.push('/top-words');
-          }}
-        />
-      </Animated.View>
     </View>
   );
 }
