@@ -15,7 +15,6 @@ export default function TodayScreen() {
   const { requiredLength, submission, submitWord } = useGame();
   const { colors } = useTheme();
   const [word, setWord] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const insets = useSafeAreaInsets();
 
@@ -23,24 +22,14 @@ export default function TodayScreen() {
     return <Redirect href="/result" />;
   }
 
-  const validation = validateWord(word, requiredLength);
-  const isValid = validation.valid;
-  const helperText = error
-    ? error
-    : word.length === 0
-      ? 'One word. Lock it in.'
-      : isValid
-        ? 'Ready.'
-        : `${word.length} of ${requiredLength}`;
+  const isValid = validateWord(word, requiredLength).valid;
 
   async function handleSubmit() {
-    setError(null);
     setSubmitting(true);
     notifySuccess();
     const res = await submitWord(word);
     if (!res.ok) {
       notifyWarning();
-      setError(res.reason);
       setSubmitting(false);
       return;
     }
@@ -54,6 +43,7 @@ export default function TodayScreen() {
         flex: 1,
         backgroundColor: colors.background,
         paddingHorizontal: space.lg,
+        paddingBottom: space.xxl,
         justifyContent: 'center',
       }}
     >
@@ -90,7 +80,6 @@ export default function TodayScreen() {
           autoFocus={false}
           value={word}
           onChangeText={(next) => {
-            setError(null);
             if (next.length > word.length) tapSelection();
             const wasValid = isValid;
             setWord(next);
@@ -103,17 +92,6 @@ export default function TodayScreen() {
             if (isValid && !submitting) handleSubmit();
           }}
         />
-
-        <Text
-          style={{
-            fontSize: type.label,
-            color: error ? colors.error : colors.muted,
-            textAlign: 'center',
-            minHeight: 20,
-          }}
-        >
-          {helperText}
-        </Text>
 
         <PrimaryButton
           label="Lock In"
