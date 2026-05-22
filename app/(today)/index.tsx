@@ -1,4 +1,4 @@
-import { Link, Redirect, router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { Keyboard, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -54,7 +54,7 @@ export default function TodayScreen() {
         flex: 1,
         backgroundColor: colors.background,
         paddingTop: insets.top + space.lg,
-        paddingBottom: insets.bottom + space.lg,
+        paddingBottom: space.lg,
         paddingHorizontal: space.lg,
       }}
     >
@@ -117,31 +117,12 @@ export default function TodayScreen() {
         </Text>
       </View>
 
-      <View style={{ gap: space.lg }}>
-        <PrimaryButton
-          label="Lock In"
-          onPress={handleSubmit}
-          disabled={!isValid}
-          loading={submitting}
-        />
-
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Link href="/history" asChild>
-            <Pressable hitSlop={10}>
-              <Text style={{ fontSize: type.label, color: colors.muted, fontWeight: '500' }}>
-                History
-              </Text>
-            </Pressable>
-          </Link>
-          <Link href="/settings" asChild>
-            <Pressable hitSlop={10}>
-              <Text style={{ fontSize: type.label, color: colors.muted, fontWeight: '500' }}>
-                Settings
-              </Text>
-            </Pressable>
-          </Link>
-        </View>
-      </View>
+      <PrimaryButton
+        label="Lock In"
+        onPress={handleSubmit}
+        disabled={!isValid}
+        loading={submitting}
+      />
     </Pressable>
   );
 }

@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { NativeTabs, Icon, Label } from 'expo-router/unstable-native-tabs';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GameProvider } from '@/components/game-provider';
@@ -9,34 +9,32 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ThemeProvider>
         <GameProvider>
-          <ThemedShell />
+          <ThemedTabs />
         </GameProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );
 }
 
-function ThemedShell() {
+function ThemedTabs() {
   const { colors, scheme } = useTheme();
   return (
     <>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-      <Stack
-        screenOptions={{
-          headerShadowVisible: false,
-          headerStyle: { backgroundColor: colors.background },
-          headerTitleStyle: { color: colors.text },
-          headerTintColor: colors.accent,
-          headerBackButtonDisplayMode: 'minimal',
-          contentStyle: { backgroundColor: colors.background },
-        }}
-      >
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="result" options={{ headerShown: false }} />
-        <Stack.Screen name="top-words" options={{ title: '' }} />
-        <Stack.Screen name="history" options={{ title: '' }} />
-        <Stack.Screen name="settings" options={{ title: '' }} />
-      </Stack>
+      <NativeTabs tintColor={colors.accent} labelStyle={{ fontSize: 11, fontWeight: '600' }}>
+        <NativeTabs.Trigger name="(today)">
+          <Icon sf={{ default: 'square.and.pencil', selected: 'square.and.pencil' }} />
+          <Label>Today</Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="history">
+          <Icon sf={{ default: 'clock', selected: 'clock.fill' }} />
+          <Label>History</Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="settings">
+          <Icon sf={{ default: 'gearshape', selected: 'gearshape.fill' }} />
+          <Label>Settings</Label>
+        </NativeTabs.Trigger>
+      </NativeTabs>
     </>
   );
 }

@@ -1,6 +1,6 @@
-import { Link, Redirect, router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { useEffect } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGame } from '@/components/game-provider';
@@ -76,7 +76,7 @@ export default function ResultScreen() {
         flex: 1,
         backgroundColor: colors.background,
         paddingTop: insets.top + space.lg,
-        paddingBottom: insets.bottom + space.lg,
+        paddingBottom: space.lg,
         paddingHorizontal: space.lg,
       }}
     >
@@ -132,10 +132,7 @@ export default function ResultScreen() {
 
       </View>
 
-      <Animated.View
-        entering={FadeInDown.delay(640).duration(420)}
-        style={{ gap: space.md }}
-      >
+      <Animated.View entering={FadeInDown.delay(640).duration(420)}>
         <PrimaryButton
           label="See Top Words"
           onPress={() => {
@@ -143,23 +140,6 @@ export default function ResultScreen() {
             router.push('/top-words');
           }}
         />
-
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Link href="/history" asChild>
-            <Pressable hitSlop={10}>
-              <Text style={{ fontSize: type.label, color: colors.muted, fontWeight: '500' }}>
-                History
-              </Text>
-            </Pressable>
-          </Link>
-          <Link href="/settings" asChild>
-            <Pressable hitSlop={10}>
-              <Text style={{ fontSize: type.label, color: colors.muted, fontWeight: '500' }}>
-                Settings
-              </Text>
-            </Pressable>
-          </Link>
-        </View>
       </Animated.View>
     </View>
   );
