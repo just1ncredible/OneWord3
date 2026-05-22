@@ -137,7 +137,7 @@ export default function ResultScreen() {
         />
 
         <PrimaryButton
-          label="See Top Words"
+          label="See Today's Words"
           onPress={() => {
             tapLight();
             router.push('/top-words');

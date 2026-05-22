@@ -11,6 +11,19 @@ export type WordStats = {
 
 export const MOCK_TOTAL_SUBMISSIONS_TODAY = 4286;
 
+export const MOCK_NICHE_WORDS_TODAY: { word: string; count: number }[] = [
+  { word: 'fallow', count: 2 },
+  { word: 'nimbus', count: 3 },
+  { word: 'velvet', count: 4 },
+  { word: 'cobalt', count: 3 },
+  { word: 'tallow', count: 2 },
+  { word: 'zephyr', count: 5 },
+  { word: 'gilded', count: 2 },
+  { word: 'pelmet', count: 3 },
+  { word: 'wyvern', count: 2 },
+  { word: 'luster', count: 4 },
+];
+
 export const MOCK_TOP_WORDS_TODAY: { word: string; count: number }[] = [
   { word: 'gentle', count: 842 },
   { word: 'steady', count: 618 },
