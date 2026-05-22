@@ -20,11 +20,13 @@ function AnimatedHeaderTitle({ scrollY }: { scrollY: SharedValue<number> }) {
     opacity: interpolate(scrollY.value, [20, 52], [0, 1], 'clamp'),
   }));
   return (
-    <Animated.Text
-      style={[{ fontSize: type.body, fontWeight: '600', color: colors.text }, animatedStyle]}
-    >
-      Top Words
-    </Animated.Text>
+    <View pointerEvents="none">
+      <Animated.Text
+        style={[{ fontSize: type.body, fontWeight: '600', color: colors.text }, animatedStyle]}
+      >
+        Top Words
+      </Animated.Text>
+    </View>
   );
 }
 
