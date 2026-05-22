@@ -69,7 +69,7 @@ export default function SettingsScreen() {
             color: colors.text,
             letterSpacing: 0.3,
             paddingTop: space.xs,
-            paddingBottom: space.xs,
+            paddingBottom: 0,
           }}
         >
           Settings

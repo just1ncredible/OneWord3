@@ -65,7 +65,7 @@ export default function TopWordsScreen() {
         contentContainerStyle={{
           paddingHorizontal: space.lg,
           paddingBottom: space.xl,
-          gap: space.md,
+          gap: space.xl,
         }}
         style={{ flex: 1, backgroundColor: colors.background }}
       >
@@ -76,7 +76,7 @@ export default function TopWordsScreen() {
             color: colors.text,
             letterSpacing: 0.3,
             paddingTop: space.xs,
-            paddingBottom: space.xs,
+            paddingBottom: 0,
           }}
         >
           Today's Words

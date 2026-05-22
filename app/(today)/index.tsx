@@ -52,27 +52,16 @@ export default function TodayScreen() {
       </View>
 
       <View style={{ gap: space.xl, paddingVertical: space.xxl }}>
-        <View style={{ alignItems: 'center', gap: space.sm }}>
+        <View style={{ alignItems: 'center' }}>
           <Text
             style={{
-              fontSize: type.label,
+              fontSize: type.body,
+              fontWeight: '500',
               color: colors.muted,
-              letterSpacing: 1.6,
-              textTransform: 'uppercase',
-              fontWeight: '600',
+              textAlign: 'center',
             }}
           >
-            Today
-          </Text>
-          <Text
-            style={{
-              fontSize: type.dailyLength,
-              fontWeight: '700',
-              color: colors.text,
-              letterSpacing: -2,
-            }}
-          >
-            {requiredLength} letters
+            Choose today's {requiredLength}-letter word
           </Text>
         </View>
 
@@ -94,7 +83,7 @@ export default function TodayScreen() {
         />
 
         <PrimaryButton
-          label="Lock In"
+          label={isValid ? 'Ready' : `Enter ${requiredLength} letters`}
           onPress={handleSubmit}
           disabled={!isValid}
           loading={submitting}

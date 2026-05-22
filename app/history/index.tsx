@@ -78,7 +78,7 @@ export default function HistoryScreen() {
         contentContainerStyle={{
           paddingHorizontal: space.lg,
           paddingBottom: space.xl,
-          gap: space.sm,
+          gap: space.xl,
         }}
         style={{ flex: 1, backgroundColor: colors.background }}
       >
@@ -89,7 +89,7 @@ export default function HistoryScreen() {
             color: colors.text,
             letterSpacing: 0.3,
             paddingTop: space.xs,
-            paddingBottom: space.xs,
+            paddingBottom: 0,
           }}
         >
           History
