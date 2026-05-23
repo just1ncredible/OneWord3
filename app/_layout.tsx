@@ -1,5 +1,6 @@
 import { NativeTabs, Icon, Label } from 'expo-router/unstable-native-tabs';
 import { StatusBar } from 'expo-status-bar';
+import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GameProvider } from '@/components/game-provider';
 import { ThemeProvider, useTheme } from '@/components/theme-provider';
@@ -19,7 +20,7 @@ export default function RootLayout() {
 function ThemedTabs() {
   const { colors, scheme } = useTheme();
   return (
-    <>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <NativeTabs tintColor={colors.accent} labelStyle={{ fontSize: 11, fontWeight: '600' }}>
         <NativeTabs.Trigger name="(today)">
@@ -35,6 +36,6 @@ function ThemedTabs() {
           <Label>Settings</Label>
         </NativeTabs.Trigger>
       </NativeTabs>
-    </>
+    </View>
   );
 }
