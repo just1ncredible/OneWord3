@@ -33,8 +33,8 @@ export const lightColors: Palette = {
 };
 
 export const darkColors: Palette = {
-  background: '#11100E',
-  surface: '#1B1A17',
+  background: '#0D0D0D',
+  surface: '#161616',
   text: '#F4F0EA',
   muted: '#A8A095',
   line: '#34312C',
