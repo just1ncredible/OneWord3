@@ -19,13 +19,13 @@ export const lightColors: Palette = {
   text: '#171717',
   muted: '#78716C',
   line: '#DDD6CE',
-  accent: '#171717',
+  accent: '#C8912C',
   accent2: '#D35F3F',
   accent3: '#D9A441',
   success: '#4F7D5A',
   error: '#B9473D',
   disabled: '#C7C1B8',
-  onAccent: '#FFFFFF',
+  onAccent: '#1C0F00',
 };
 
 export const darkColors: Palette = {
@@ -34,13 +34,13 @@ export const darkColors: Palette = {
   text: '#F4F0EA',
   muted: '#A8A095',
   line: '#34312C',
-  accent: '#F4F0EA',
+  accent: '#D4A03A',
   accent2: '#E07A5F',
   accent3: '#E7B84B',
   success: '#8DBA7D',
   error: '#E06B5F',
   disabled: '#3A3833',
-  onAccent: '#11100E',
+  onAccent: '#1C0F00',
 };
 
 export const type = {
