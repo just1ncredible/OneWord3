@@ -229,7 +229,7 @@ function ListView({ entries }: { entries: HistoryEntry[] }) {
               </Text>
             </View>
 
-            <View style={{ flex: 1, gap: 2 }}>
+            <View style={{ flex: 1 }}>
               <Text
                 selectable
                 style={{
@@ -240,9 +240,6 @@ function ListView({ entries }: { entries: HistoryEntry[] }) {
                 }}
               >
                 {entry.word}
-              </Text>
-              <Text style={{ fontSize: type.label, color: colors.muted, fontWeight: '500' }}>
-                {placementShort(entry)}
               </Text>
             </View>
           </View>
