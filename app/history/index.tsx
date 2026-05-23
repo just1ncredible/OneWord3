@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Animated, {
@@ -12,7 +12,12 @@ import Animated, {
 import { useGame, type HistoryEntry } from '@/components/game-provider';
 import { useTheme } from '@/components/theme-provider';
 import { radius, space, type } from '@/constants/theme';
-import { tapSelection } from '@/lib/haptics';
+import { tapLight, tapSelection } from '@/lib/haptics';
+
+function openWord(date: string) {
+  tapLight();
+  router.push({ pathname: '/history/word', params: { date } });
+}
 
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const MONTHS_LONG = [
@@ -28,14 +33,6 @@ function pad(n: number) {
 function parseISO(iso: string) {
   const [y, m, d] = iso.split('-').map(Number);
   return { y, m: m - 1, d };
-}
-
-function placementShort(entry: HistoryEntry): string {
-  const s = entry.stats;
-  if (s.totalForWord === 1) return 'Original — yours alone';
-  if (s.totalForWord <= 5) return `Rare — ${s.totalForWord} chose it`;
-  if (s.wordRank <= 10) return `Early — #${s.wordRank} for this word`;
-  return `Wave — ${s.totalForWord.toLocaleString()} chose it`;
 }
 
 function AnimatedHeaderTitle({ scrollY }: { scrollY: SharedValue<number> }) {
@@ -189,60 +186,49 @@ export default function HistoryScreen() {
 function ListView({ entries }: { entries: HistoryEntry[] }) {
   const { colors } = useTheme();
   return (
-    <Animated.View entering={FadeIn.duration(220)} style={{ paddingTop: space.xs }}>
-      {entries.map((entry, i) => {
+    <Animated.View entering={FadeIn.duration(220)} style={{ gap: space.md, marginTop: space.xs }}>
+      {entries.map((entry) => {
         const { m, d } = parseISO(entry.date);
         return (
-          <View
+          <Pressable
             key={entry.date}
-            style={{
+            onPress={() => openWord(entry.date)}
+            style={({ pressed }) => ({
               flexDirection: 'row',
               alignItems: 'center',
-              gap: space.lg,
-              paddingVertical: space.md,
-              borderTopWidth: i === 0 ? 0 : 1,
-              borderTopColor: colors.line,
-            }}
+              justifyContent: 'space-between',
+              gap: space.md,
+              backgroundColor: colors.surface,
+              borderRadius: radius.slot,
+              borderCurve: 'continuous',
+              borderWidth: 1,
+              borderColor: colors.line,
+              paddingHorizontal: space.lg,
+              paddingVertical: space.lg,
+              opacity: pressed ? 0.6 : 1,
+            })}
           >
-            <View style={{ width: 44, alignItems: 'center' }}>
-              <Text
-                style={{
-                  fontSize: 22,
-                  fontWeight: '700',
-                  color: colors.text,
-                  fontVariant: ['tabular-nums'],
-                  letterSpacing: -0.5,
-                }}
-              >
-                {d}
-              </Text>
-              <Text
-                style={{
-                  fontSize: 11,
-                  fontWeight: '600',
-                  color: colors.muted,
-                  letterSpacing: 1,
-                  textTransform: 'uppercase',
-                }}
-              >
-                {MONTHS_SHORT[m]}
-              </Text>
-            </View>
-
-            <View style={{ flex: 1 }}>
-              <Text
-                selectable
-                style={{
-                  fontSize: 24,
-                  fontWeight: '700',
-                  color: colors.text,
-                  letterSpacing: -0.4,
-                }}
-              >
-                {entry.word}
-              </Text>
-            </View>
-          </View>
+            <Text
+              style={{
+                fontSize: 22,
+                fontWeight: '700',
+                color: colors.text,
+                letterSpacing: -0.4,
+              }}
+            >
+              {entry.word}
+            </Text>
+            <Text
+              style={{
+                fontSize: type.body,
+                fontWeight: '500',
+                color: colors.muted,
+                fontVariant: ['tabular-nums'],
+              }}
+            >
+              {`${MONTHS_SHORT[m]} ${d}`}
+            </Text>
+          </Pressable>
         );
       })}
     </Animated.View>
@@ -281,8 +267,6 @@ function CalendarView({ entries }: { entries: HistoryEntry[] }) {
       return { y: next.getFullYear(), m: next.getMonth() };
     });
   }
-
-  const selectedEntry = byDate.get(selected)!;
 
   return (
     <Animated.View entering={FadeIn.duration(220)} style={{ gap: space.lg, paddingTop: space.xs }}>
@@ -338,8 +322,8 @@ function CalendarView({ entries }: { entries: HistoryEntry[] }) {
                   <Pressable
                     disabled={!hasEntry}
                     onPress={() => {
-                      tapSelection();
                       setSelected(iso);
+                      openWord(iso);
                     }}
                     style={{
                       width: 40,
@@ -376,48 +360,6 @@ function CalendarView({ entries }: { entries: HistoryEntry[] }) {
           </View>
         ))}
       </View>
-
-      <DayDetail entry={selectedEntry} />
     </Animated.View>
-  );
-}
-
-function DayDetail({ entry }: { entry: HistoryEntry }) {
-  const { colors } = useTheme();
-  const { m, d } = parseISO(entry.date);
-  return (
-    <View
-      style={{
-        backgroundColor: colors.surface,
-        borderRadius: radius.slot,
-        borderCurve: 'continuous',
-        borderWidth: 1,
-        borderColor: colors.line,
-        paddingHorizontal: space.lg,
-        paddingVertical: space.lg,
-        gap: 6,
-      }}
-    >
-      <Text
-        style={{
-          fontSize: type.small,
-          color: colors.muted,
-          fontWeight: '600',
-          letterSpacing: 1,
-          textTransform: 'uppercase',
-        }}
-      >
-        {`${MONTHS_SHORT[m]} ${d}`}
-      </Text>
-      <Text
-        selectable
-        style={{ fontSize: 28, fontWeight: '700', color: colors.text, letterSpacing: -0.5 }}
-      >
-        {entry.word}
-      </Text>
-      <Text style={{ fontSize: type.label, color: colors.muted, fontWeight: '500' }}>
-        {placementShort(entry)}
-      </Text>
-    </View>
   );
 }

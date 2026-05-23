@@ -14,6 +14,7 @@ export default function HistoryLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ title: '' }} />
+      <Stack.Screen name="word" options={{ title: '' }} />
     </Stack>
   );
 }

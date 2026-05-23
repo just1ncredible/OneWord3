@@ -165,7 +165,7 @@ export default function ResultScreen() {
                 letterSpacing: 0.2,
               }}
             >
-              {`See all ${MOCK_DISTINCT_WORDS_TODAY} words`}
+              {`View all ${MOCK_DISTINCT_WORDS_TODAY} words`}
             </Text>
           </Pressable>
 
