@@ -140,8 +140,7 @@ export default function ResultScreen() {
             }}
             style={({ pressed }) => ({
               flex: 1,
-              borderWidth: 1,
-              borderColor: colors.line,
+              backgroundColor: colors.accent,
               borderRadius: radius.button,
               borderCurve: 'continuous',
               paddingVertical: 16,
@@ -153,9 +152,9 @@ export default function ResultScreen() {
           >
             <Text
               style={{
-                color: colors.muted,
+                color: colors.onAccent,
                 fontSize: type.body,
-                fontWeight: '500',
+                fontWeight: '600',
                 letterSpacing: 0.2,
               }}
             >
