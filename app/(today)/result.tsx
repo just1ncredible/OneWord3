@@ -2,8 +2,10 @@ import { Redirect, router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, Share, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGame } from '@/components/game-provider';
 import { useTheme } from '@/components/theme-provider';
+import { Wordmark } from '@/components/wordmark';
 import { radius, space, type } from '@/constants/theme';
 import { tapLight } from '@/lib/haptics';
 import { MOCK_DISTINCT_WORDS_TODAY, type WordStats } from '@/lib/mock-stats';
@@ -59,6 +61,7 @@ export default function ResultScreen() {
   const { submission } = useGame();
   const { colors } = useTheme();
   const countdown = useCountdown();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const t = setTimeout(() => tapLight(), 120);
@@ -86,6 +89,10 @@ export default function ResultScreen() {
         justifyContent: 'center',
       }}
     >
+      <View style={{ position: 'absolute', top: insets.top + space.lg, left: 0, right: 0, alignItems: 'center' }}>
+        <Wordmark size={22} />
+      </View>
+
       <Animated.View entering={FadeIn.duration(800)} style={{ gap: space.xl }}>
         <View style={{ alignItems: 'center', gap: space.lg }}>
           <Text
