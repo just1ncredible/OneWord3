@@ -1,6 +1,6 @@
 import { Redirect, router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, Share, Text, View } from 'react-native';
+import { Platform, Pressable, Share, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGame } from '@/components/game-provider';
@@ -62,6 +62,9 @@ export default function ResultScreen() {
   const { colors } = useTheme();
   const countdown = useCountdown();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const isWideWeb = Platform.OS === 'web' && width > 700;
+  const contentMaxWidth = isWideWeb ? 520 : undefined;
 
   useEffect(() => {
     const t = setTimeout(() => tapLight(), 120);
@@ -93,7 +96,7 @@ export default function ResultScreen() {
         <Wordmark size={22} />
       </View>
 
-      <Animated.View entering={FadeIn.duration(800)} style={{ gap: space.xl, maxWidth: 420, width: '100%', alignSelf: 'center' }}>
+      <Animated.View entering={FadeIn.duration(800)} style={{ gap: space.xl, maxWidth: contentMaxWidth, width: '100%', alignSelf: 'center' }}>
         <View style={{ alignItems: 'center', gap: space.lg }}>
           <Text
             style={{

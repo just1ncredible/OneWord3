@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Pressable, ScrollView, Share, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Share, Text, View, useWindowDimensions } from 'react-native';
 import { useGame, type HistoryEntry } from '@/components/game-provider';
 import { useTheme } from '@/components/theme-provider';
 import { radius, space, type } from '@/constants/theme';
@@ -33,6 +33,9 @@ export default function WordDetailScreen() {
   const { date } = useLocalSearchParams<{ date: string }>();
   const { history, submission } = useGame();
   const { colors } = useTheme();
+  const { width } = useWindowDimensions();
+  const isWideWeb = Platform.OS === 'web' && width > 700;
+  const contentMaxWidth = isWideWeb ? 520 : undefined;
 
   const entries: HistoryEntry[] = submission
     ? [
@@ -66,115 +69,124 @@ export default function WordDetailScreen() {
       contentInsetAdjustmentBehavior="automatic"
       style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={{
+        flexGrow: 1,
         paddingHorizontal: space.lg,
-        paddingTop: space.xxl,
         paddingBottom: space.xl,
-        gap: space.xl,
       }}
     >
-      <View style={{ alignItems: 'center', gap: space.sm }}>
-        <Text
-          style={{
-            fontSize: type.small,
-            color: colors.muted,
-            fontWeight: '600',
-            letterSpacing: 3,
-            textTransform: 'uppercase',
-          }}
-        >
-          {formatLongDate(entry.date)}
-        </Text>
-        <Text
-          selectable
-          style={{
-            fontSize: type.submittedWord,
-            fontWeight: '600',
-            color: colors.text,
-            letterSpacing: -1.5,
-            textAlign: 'center',
-          }}
-        >
-          {entry.word}
-        </Text>
-        <Text
-          style={{
-            fontSize: type.resultLine,
-            fontStyle: 'italic',
-            fontWeight: '600',
-            color: colors.text,
-            letterSpacing: -0.3,
-          }}
-        >
-          {headlineFor(stats)}
-        </Text>
-      </View>
-
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' }}>
-        <StatBlock value={formatCount(stats.totalForWord)} label="Wrote it" colors={colors} />
-        <StatDivider colors={colors} />
-        <StatBlock value={`#${stats.wordRank}`} label="To choose it" colors={colors} />
-        <StatDivider colors={colors} />
-        <StatBlock
-          value={stats.overallRank ? `#${stats.overallRank}` : '—'}
-          label="Day rank"
-          colors={colors}
-        />
-      </View>
-
-      <View style={{ flexDirection: 'row', gap: space.sm }}>
-        <Pressable
-          onPress={() => {
-            tapLight();
-            router.push('/top-words');
-          }}
-          style={({ pressed }) => ({
-            flex: 1,
-            backgroundColor: colors.accent,
-            borderRadius: radius.button,
-            borderCurve: 'continuous',
-            paddingVertical: 16,
-            paddingHorizontal: space.lg,
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: pressed ? 0.88 : 1,
-          })}
-        >
+      <View
+        style={{
+          width: '100%',
+          alignSelf: 'center',
+          maxWidth: contentMaxWidth,
+          paddingTop: space.xxl,
+          gap: space.xl,
+        }}
+      >
+        <View style={{ alignItems: 'center', gap: space.sm }}>
           <Text
             style={{
-              color: colors.onAccent,
-              fontSize: type.body,
+              fontSize: type.small,
+              color: colors.muted,
               fontWeight: '600',
-              letterSpacing: 0.2,
+              letterSpacing: 3,
+              textTransform: 'uppercase',
             }}
           >
-            View all words
+            {formatLongDate(entry.date)}
           </Text>
-        </Pressable>
-
-        <Pressable
-          onPress={handleShare}
-          style={({ pressed }) => ({
-            backgroundColor: colors.accent,
-            borderRadius: radius.button,
-            borderCurve: 'continuous',
-            paddingVertical: 16,
-            paddingHorizontal: space.xl,
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: pressed ? 0.88 : 1,
-          })}
-        >
+          <Text
+            selectable
+            style={{
+              fontSize: type.submittedWord,
+              fontWeight: '600',
+              color: colors.text,
+              letterSpacing: -1.5,
+              textAlign: 'center',
+            }}
+          >
+            {entry.word}
+          </Text>
           <Text
             style={{
-              color: colors.onAccent,
-              fontSize: type.body,
+              fontSize: type.resultLine,
+              fontStyle: 'italic',
               fontWeight: '600',
-              letterSpacing: 0.2,
+              color: colors.text,
+              letterSpacing: -0.3,
             }}
           >
-            Share
+            {headlineFor(stats)}
           </Text>
-        </Pressable>
+        </View>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' }}>
+          <StatBlock value={formatCount(stats.totalForWord)} label="Wrote it" colors={colors} />
+          <StatDivider colors={colors} />
+          <StatBlock value={`#${stats.wordRank}`} label="To choose it" colors={colors} />
+          <StatDivider colors={colors} />
+          <StatBlock
+            value={stats.overallRank ? `#${stats.overallRank}` : '—'}
+            label="Day rank"
+            colors={colors}
+          />
+        </View>
+
+        <View style={{ flexDirection: 'row', gap: space.sm }}>
+          <Pressable
+            onPress={() => {
+              tapLight();
+              router.push('/top-words');
+            }}
+            style={({ pressed }) => ({
+              flex: 1,
+              backgroundColor: colors.accent,
+              borderRadius: radius.button,
+              borderCurve: 'continuous',
+              paddingVertical: 16,
+              paddingHorizontal: space.lg,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: pressed ? 0.88 : 1,
+            })}
+          >
+            <Text
+              style={{
+                color: colors.onAccent,
+                fontSize: type.body,
+                fontWeight: '600',
+                letterSpacing: 0.2,
+              }}
+            >
+              View all words
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={handleShare}
+            style={({ pressed }) => ({
+              backgroundColor: colors.accent,
+              borderRadius: radius.button,
+              borderCurve: 'continuous',
+              paddingVertical: 16,
+              paddingHorizontal: space.xl,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: pressed ? 0.88 : 1,
+            })}
+          >
+            <Text
+              style={{
+                color: colors.onAccent,
+                fontSize: type.body,
+                fontWeight: '600',
+                letterSpacing: 0.2,
+              }}
+            >
+              Share
+            </Text>
+          </Pressable>
+        </View>
       </View>
     </ScrollView>
   );
