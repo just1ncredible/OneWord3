@@ -93,7 +93,7 @@ export default function ResultScreen() {
         <Wordmark size={22} />
       </View>
 
-      <Animated.View entering={FadeIn.duration(800)} style={{ gap: space.xl }}>
+      <Animated.View entering={FadeIn.duration(800)} style={{ gap: space.xl, maxWidth: 420, width: '100%', alignSelf: 'center' }}>
         <View style={{ alignItems: 'center', gap: space.lg }}>
           <Text
             style={{
