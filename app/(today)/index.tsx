@@ -3,13 +3,17 @@ import { useState } from 'react';
 import { Keyboard, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGame } from '@/components/game-provider';
-import { PrimaryButton } from '@/components/primary-button';
 import { useTheme } from '@/components/theme-provider';
 import { WordInput } from '@/components/word-input';
 import { Wordmark } from '@/components/wordmark';
 import { space, type } from '@/constants/theme';
 import { notifySuccess, notifyWarning, tapMedium, tapSelection } from '@/lib/haptics';
 import { validateWord } from '@/lib/validation';
+
+const NUMBER_WORDS: Record<number, string> = {
+  1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five',
+  6: 'six', 7: 'seven', 8: 'eight', 9: 'nine', 10: 'ten',
+};
 
 export default function TodayScreen() {
   const { requiredLength, submission, submitWord } = useGame();
@@ -55,13 +59,19 @@ export default function TodayScreen() {
         <View style={{ alignItems: 'center' }}>
           <Text
             style={{
-              fontSize: type.body,
-              fontWeight: '500',
-              color: colors.muted,
+              fontSize: 28,
+              fontWeight: '600',
+              color: colors.text,
               textAlign: 'center',
+              letterSpacing: -0.3,
+              lineHeight: 36,
             }}
           >
-            Choose today's {requiredLength}-letter word
+            {'Today, a word of '}
+            <Text style={{ color: colors.accent }}>
+              {NUMBER_WORDS[requiredLength] ?? String(requiredLength)}
+            </Text>
+            {' letters.'}
           </Text>
         </View>
 
@@ -82,12 +92,16 @@ export default function TodayScreen() {
           }}
         />
 
-        <PrimaryButton
-          label={isValid ? 'Ready' : `Enter ${requiredLength} letters`}
-          onPress={handleSubmit}
-          disabled={!isValid}
-          loading={submitting}
-        />
+        <Text
+          style={{
+            fontSize: type.body,
+            color: colors.muted,
+            fontWeight: '500',
+            textAlign: 'center',
+          }}
+        >
+          {submitting ? 'Finding your place…' : 'Pick the word that feels right.'}
+        </Text>
       </View>
     </Pressable>
   );
