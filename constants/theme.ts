@@ -53,8 +53,8 @@ export const type = {
 };
 
 export const radius = {
-  button: 10,
-  slot: 8,
+  button: 16,
+  slot: 14,
 };
 
 export const space = {
