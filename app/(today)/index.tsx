@@ -97,7 +97,7 @@ export default function TodayScreen() {
 
         <Text
           style={{
-            fontSize: type.body,
+            fontSize: type.label,
             color: colors.muted,
             fontWeight: '500',
             textAlign: 'center',
