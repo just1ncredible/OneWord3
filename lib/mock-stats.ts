@@ -11,6 +11,8 @@ export type WordStats = {
 
 export const MOCK_TOTAL_SUBMISSIONS_TODAY = 4286;
 
+export const MOCK_DISTINCT_WORDS_TODAY = 312;
+
 export const MOCK_NICHE_WORDS_TODAY: { word: string; count: number }[] = [
   { word: 'fallow', count: 2 },
   { word: 'nimbus', count: 3 },

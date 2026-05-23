@@ -5,6 +5,8 @@ export type Palette = {
   muted: string;
   line: string;
   accent: string;
+  accentSoft: string;
+  accentInk: string;
   accent2: string;
   accent3: string;
   success: string;
@@ -20,6 +22,8 @@ export const lightColors: Palette = {
   muted: '#78716C',
   line: '#DDD6CE',
   accent: '#C8912C',
+  accentSoft: '#F4E8CC',
+  accentInk: '#8A6310',
   accent2: '#D35F3F',
   accent3: '#D9A441',
   success: '#4F7D5A',
@@ -35,6 +39,8 @@ export const darkColors: Palette = {
   muted: '#A8A095',
   line: '#34312C',
   accent: '#D4A03A',
+  accentSoft: '#2C2413',
+  accentInk: '#E0AE48',
   accent2: '#E07A5F',
   accent3: '#E7B84B',
   success: '#8DBA7D',

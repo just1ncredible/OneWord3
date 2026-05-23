@@ -1,39 +1,20 @@
 import { Redirect, router } from 'expo-router';
-import { useEffect } from 'react';
-import { Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, Share, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGame } from '@/components/game-provider';
-import { PrimaryButton } from '@/components/primary-button';
-import { AnimatedStatRow } from '@/components/stat-block';
 import { useTheme } from '@/components/theme-provider';
-import { Wordmark } from '@/components/wordmark';
-import { space, type } from '@/constants/theme';
+import { radius, space, type } from '@/constants/theme';
 import { tapLight } from '@/lib/haptics';
-import type { WordStats } from '@/lib/mock-stats';
+import { MOCK_DISTINCT_WORDS_TODAY, type WordStats } from '@/lib/mock-stats';
 
-type Placement =
-  | { kind: 'original'; word: string }
-  | { kind: 'rare'; total: number; word: string }
-  | { kind: 'early'; rank: number; word: string }
-  | { kind: 'wave'; otherCount: number; word: string };
+type Tier = { headline: string };
 
-function describePlacement(stats: WordStats): Placement {
-  if (stats.totalForWord === 1) {
-    return { kind: 'original', word: stats.word };
-  }
-  if (stats.totalForWord <= 5) {
-    return { kind: 'rare', total: stats.totalForWord, word: stats.word };
-  }
-  if (stats.wordRank <= 10) {
-    return { kind: 'early', rank: stats.wordRank, word: stats.word };
-  }
-  return { kind: 'wave', otherCount: stats.totalForWord - 1, word: stats.word };
-}
-
-function formatPercent(p: number) {
-  if (p < 0.1) return '<0.1%';
-  return `${p.toFixed(1)}%`;
+function tierFor(stats: WordStats): Tier {
+  if (stats.totalForWord === 1) return { headline: 'Yours alone.' };
+  if (stats.totalForWord <= 5) return { headline: 'A rare hand.' };
+  if (stats.wordRank <= 10) return { headline: 'Ahead of it.' };
+  return { headline: 'A chorus chose it.' };
 }
 
 function formatLongDate(iso: string) {
@@ -55,10 +36,29 @@ function formatLongDate(iso: string) {
   return `${months[m - 1]} ${d}`;
 }
 
+function timeToMidnight() {
+  const now = new Date();
+  const next = new Date(now);
+  next.setHours(24, 0, 0, 0);
+  const diff = next.getTime() - now.getTime();
+  const h = Math.floor(diff / 3_600_000);
+  const m = Math.floor((diff % 3_600_000) / 60_000);
+  return `${h}h ${m}m`;
+}
+
+function useCountdown() {
+  const [label, setLabel] = useState(timeToMidnight);
+  useEffect(() => {
+    const id = setInterval(() => setLabel(timeToMidnight()), 30_000);
+    return () => clearInterval(id);
+  }, []);
+  return label;
+}
+
 export default function ResultScreen() {
   const { submission } = useGame();
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
+  const countdown = useCountdown();
 
   useEffect(() => {
     const t = setTimeout(() => tapLight(), 120);
@@ -68,7 +68,14 @@ export default function ResultScreen() {
   if (!submission) return <Redirect href="/" />;
 
   const { stats } = submission;
-  const placement = describePlacement(stats);
+  const tier = tierFor(stats);
+
+  function handleShare() {
+    tapLight();
+    Share.share({
+      message: `${stats.word} — my word for OneWord today.`,
+    }).catch(() => {});
+  }
 
   return (
     <View
@@ -79,26 +86,19 @@ export default function ResultScreen() {
         justifyContent: 'center',
       }}
     >
-      <View style={{ position: 'absolute', top: insets.top + space.lg, left: 0, right: 0, alignItems: 'center' }}>
-        <Wordmark size={22} />
-      </View>
-
-      <Animated.View
-        entering={FadeIn.duration(800)}
-        style={{ gap: space.xl, paddingVertical: space.xxl }}
-      >
+      <Animated.View entering={FadeIn.duration(800)} style={{ gap: space.xl }}>
         <View style={{ alignItems: 'center', gap: space.lg }}>
           <Text
             style={{
               fontSize: type.small,
               color: colors.muted,
               fontWeight: '600',
-              letterSpacing: 1.4,
-              textTransform: 'uppercase',
+              letterSpacing: 3,
             }}
           >
-            {formatLongDate(submission.date)}
+            {formatLongDate(submission.date).toUpperCase()}
           </Text>
+
           <Text
             selectable
             style={{
@@ -106,99 +106,166 @@ export default function ResultScreen() {
               fontWeight: '600',
               color: colors.text,
               letterSpacing: -1.5,
+              textAlign: 'center',
             }}
           >
             {stats.word}
           </Text>
+
         </View>
 
-        <View style={{ alignItems: 'center', paddingHorizontal: space.lg }}>
-          <PlacementLine placement={placement} colors={colors} />
+        <View style={{ gap: space.md, paddingHorizontal: space.sm }}>
+          <Text
+            style={{
+              fontSize: type.resultLine,
+              fontStyle: 'italic',
+              fontWeight: '600',
+              color: colors.text,
+              textAlign: 'center',
+              letterSpacing: -0.3,
+            }}
+          >
+            {tier.headline}
+          </Text>
+          <PlacementProse stats={stats} colors={colors} />
         </View>
 
-        <AnimatedStatRow
-          stats={[
-            {
-              numericValue: stats.totalForWord,
-              format: (n) => Math.round(n).toLocaleString(),
-              label: 'chose it',
-            },
-            {
-              numericValue: stats.overallRank ?? null,
-              format: (n) => `#${Math.round(n)}`,
-              label: 'today',
-            },
-            {
-              numericValue: stats.percentOfPlayers,
-              format: (n) => formatPercent(n),
-              label: 'of players',
-            },
-          ]}
-        />
+        <CountdownLine label={countdown} colors={colors} />
 
-        <PrimaryButton
-          label="See Today's Words"
-          onPress={() => {
-            tapLight();
-            router.push('/top-words');
-          }}
-        />
+        <View style={{ flexDirection: 'row', gap: space.sm }}>
+          <Pressable
+            onPress={() => {
+              tapLight();
+              router.push('/top-words');
+            }}
+            style={({ pressed }) => ({
+              flex: 1,
+              borderWidth: 1,
+              borderColor: colors.line,
+              borderRadius: radius.button,
+              borderCurve: 'continuous',
+              paddingVertical: 16,
+              paddingHorizontal: space.lg,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: pressed ? 0.88 : 1,
+            })}
+          >
+            <Text
+              style={{
+                color: colors.muted,
+                fontSize: type.body,
+                fontWeight: '500',
+                letterSpacing: 0.2,
+              }}
+            >
+              {`See all ${MOCK_DISTINCT_WORDS_TODAY} words`}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={handleShare}
+            style={({ pressed }) => ({
+              backgroundColor: colors.accent,
+              borderRadius: radius.button,
+              borderCurve: 'continuous',
+              paddingVertical: 16,
+              paddingHorizontal: space.xl,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: pressed ? 0.88 : 1,
+            })}
+          >
+            <Text
+              style={{
+                color: colors.onAccent,
+                fontSize: type.body,
+                fontWeight: '600',
+                letterSpacing: 0.2,
+              }}
+            >
+              Share
+            </Text>
+          </Pressable>
+        </View>
       </Animated.View>
     </View>
   );
 }
 
-function PlacementLine({
-  placement,
+function PlacementProse({
+  stats,
   colors,
 }: {
-  placement: Placement;
+  stats: WordStats;
   colors: ReturnType<typeof useTheme>['colors'];
 }) {
-  const baseStyle = {
-    fontSize: type.resultLine,
-    color: colors.text,
+  const base = {
+    fontSize: type.body,
+    color: colors.muted,
     fontWeight: '500' as const,
     textAlign: 'center' as const,
+    lineHeight: 26,
   };
-  const boldStyle = { ...baseStyle, fontWeight: '700' as const };
-  const emphasisStyle = {
-    ...baseStyle,
-    color: colors.accent,
-    fontWeight: '700' as const,
-    fontVariant: ['tabular-nums' as const],
-  };
+  const strong = { ...base, color: colors.text, fontWeight: '700' as const };
+  const word = `“${stats.word}”`;
 
-  if (placement.kind === 'original') {
+  if (stats.totalForWord === 1) {
     return (
-      <Text style={baseStyle}>
-        <Text style={boldStyle}>Original.</Text> Yours alone today.
+      <Text style={base}>
+        No one else wrote <Text style={strong}>{word}</Text> today — a word entirely your own.
       </Text>
     );
   }
-  if (placement.kind === 'rare') {
+  if (stats.totalForWord <= 5) {
     return (
-      <Text style={baseStyle}>
-        <Text style={boldStyle}>Rare.</Text> Only{' '}
-        <Text style={emphasisStyle}>{placement.total}</Text> of you wrote{' '}
-        <Text style={boldStyle}>"{placement.word}"</Text> today.
+      <Text style={base}>
+        Only <Text style={strong}>{stats.totalForWord}</Text> of you wrote{' '}
+        <Text style={strong}>{word}</Text> today.
       </Text>
     );
   }
-  if (placement.kind === 'early') {
+  if (stats.wordRank <= 10) {
     return (
-      <Text style={baseStyle}>
-        <Text style={boldStyle}>Early.</Text> You were{' '}
-        <Text style={emphasisStyle}>#{placement.rank}</Text> for{' '}
-        <Text style={boldStyle}>"{placement.word}"</Text> today.
+      <Text style={base}>
+        You were <Text style={strong}>#{stats.wordRank}</Text> to write{' '}
+        <Text style={strong}>{word}</Text> today.
       </Text>
     );
   }
+  const others = (stats.totalForWord - 1).toLocaleString();
   return (
-    <Text style={baseStyle}>
-      <Text style={boldStyle}>Wave.</Text> You and{' '}
-      <Text style={emphasisStyle}>{placement.otherCount}</Text> others on{' '}
-      <Text style={boldStyle}>"{placement.word}"</Text> today.
+    <Text style={base}>
+      You and <Text style={strong}>{others} others</Text> wrote{' '}
+      <Text style={strong}>{word}</Text> today
+      {stats.overallRank === 1 ? ' — the day’s most-shared word.' : '.'}
     </Text>
+  );
+}
+
+function CountdownLine({
+  label,
+  colors,
+}: {
+  label: string;
+  colors: ReturnType<typeof useTheme>['colors'];
+}) {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+      <View style={{ flex: 1, height: 1, backgroundColor: colors.line }} />
+      <Text
+        style={{
+          fontSize: type.small,
+          color: colors.muted,
+          fontWeight: '600',
+          letterSpacing: 1.4,
+          textTransform: 'uppercase',
+          fontVariant: ['tabular-nums'],
+        }}
+      >
+        {`Next word in ${label}`}
+      </Text>
+      <View style={{ flex: 1, height: 1, backgroundColor: colors.line }} />
+    </View>
   );
 }
