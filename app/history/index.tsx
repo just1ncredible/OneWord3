@@ -100,24 +100,19 @@ export default function HistoryScreen() {
             Your words will collect here.
           </Text>
         ) : (
-          <View
-            style={{
-              backgroundColor: colors.surface,
-              borderRadius: radius.slot,
-              borderCurve: 'continuous',
-              borderWidth: 1,
-              borderColor: colors.line,
-            }}
-          >
-            {entries.map((entry, i) => (
+          <View style={{ gap: space.md }}>
+            {entries.map((entry) => (
               <View
                 key={entry.date}
                 style={{
+                  backgroundColor: colors.surface,
+                  borderRadius: radius.slot,
+                  borderCurve: 'continuous',
+                  borderWidth: 1,
+                  borderColor: colors.line,
                   paddingHorizontal: space.lg,
-                  paddingVertical: 16,
-                  gap: 4,
-                  borderBottomWidth: i === entries.length - 1 ? 0 : 1,
-                  borderBottomColor: colors.line,
+                  paddingVertical: space.lg,
+                  gap: 6,
                 }}
               >
                 <Text
@@ -133,9 +128,9 @@ export default function HistoryScreen() {
                 <Text
                   selectable
                   style={{
-                    fontSize: type.resultLine,
+                    fontSize: 28,
                     color: colors.text,
-                    fontWeight: '600',
+                    fontWeight: '700',
                     letterSpacing: -0.5,
                   }}
                 >
