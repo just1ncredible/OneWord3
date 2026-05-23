@@ -59,16 +59,16 @@ export default function TodayScreen() {
         <View style={{ alignItems: 'center' }}>
           <Text
             style={{
-              fontSize: 28,
-              fontWeight: '600',
-              color: colors.text,
+              fontSize: 20,
+              fontWeight: '500',
+              color: colors.muted,
               textAlign: 'center',
-              letterSpacing: -0.3,
-              lineHeight: 36,
+              letterSpacing: 0,
+              lineHeight: 28,
             }}
           >
             {'Today, a word of '}
-            <Text style={{ color: colors.accent }}>
+            <Text style={{ color: colors.accent, fontWeight: '600' }}>
               {NUMBER_WORDS[requiredLength] ?? String(requiredLength)}
             </Text>
             {' letters.'}
