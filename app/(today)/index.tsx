@@ -1,6 +1,6 @@
 import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
-import { Keyboard, Pressable, Text, View } from 'react-native';
+import { Keyboard, Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGame } from '@/components/game-provider';
 import { useTheme } from '@/components/theme-provider';
@@ -21,6 +21,9 @@ export default function TodayScreen() {
   const [word, setWord] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const isWideWeb = Platform.OS === 'web' && width > 700;
+  const contentMaxWidth = isWideWeb ? 520 : undefined;
 
   if (submission) {
     return <Redirect href="/result" />;
@@ -55,7 +58,7 @@ export default function TodayScreen() {
         <Wordmark size={22} />
       </View>
 
-      <View style={{ gap: space.xl, paddingVertical: space.xxl }}>
+      <View style={{ gap: space.xl, paddingVertical: space.xxl, maxWidth: contentMaxWidth, width: '100%', alignSelf: 'center' }}>
         <View style={{ alignItems: 'center' }}>
           <Text
             style={{

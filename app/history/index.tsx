@@ -1,6 +1,6 @@
 import { router, Stack } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import Animated, {
   FadeIn,
   interpolate,
@@ -119,6 +119,9 @@ export default function HistoryScreen() {
   const { colors } = useTheme();
   const scrollY = useSharedValue(0);
   const [view, setView] = useState<ViewMode>('list');
+  const { width } = useWindowDimensions();
+  const isWideWeb = Platform.OS === 'web' && width > 700;
+  const contentMaxWidth = isWideWeb ? 520 : undefined;
 
   const scrollHandler = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
@@ -149,12 +152,13 @@ export default function HistoryScreen() {
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         contentContainerStyle={{
+          flexGrow: 1,
           paddingHorizontal: space.lg,
           paddingBottom: space.xl,
-          gap: space.lg,
         }}
         style={{ flex: 1, backgroundColor: colors.background }}
       >
+        <View style={{ width: '100%', alignSelf: 'center', maxWidth: contentMaxWidth, gap: space.lg }}>
         <Text
           style={{
             fontSize: 34,
@@ -178,6 +182,7 @@ export default function HistoryScreen() {
         ) : (
           <CalendarView entries={entries} />
         )}
+        </View>
       </Animated.ScrollView>
     </>
   );
