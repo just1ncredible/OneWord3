@@ -1,233 +1,253 @@
 import { router, Stack } from 'expo-router';
-import { useCallback } from 'react';
-import { Platform, Text, View, useWindowDimensions } from 'react-native';
-import Animated, {
-  interpolate,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-  type SharedValue,
-} from 'react-native-reanimated';
+import { useMemo, useRef, useState } from 'react';
+import {
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { useGame } from '@/components/game-provider';
 import { PrimaryButton } from '@/components/primary-button';
 import { useTheme } from '@/components/theme-provider';
-import { radius, space, type } from '@/constants/theme';
+import { bondColors, radius, space, type, type Bond } from '@/constants/theme';
+import { tapSelection } from '@/lib/haptics';
 import { MOCK_NICHE_WORDS_TODAY, MOCK_TOP_WORDS_TODAY } from '@/lib/mock-stats';
 
-function AnimatedHeaderTitle({ scrollY }: { scrollY: SharedValue<number> }) {
-  const { colors } = useTheme();
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.value, [44, 68], [0, 1], 'clamp'),
-  }));
-  return (
-    <View pointerEvents="none">
-      <Animated.Text
-        style={[{ fontSize: type.body, fontWeight: '600', color: colors.text }, animatedStyle]}
-      >
-        Today's Words
-      </Animated.Text>
-    </View>
-  );
+type WordRow = { word: string; count: number };
+type Category = { key: string; label: string; rows: WordRow[] };
+
+const BAR_WIDTH = 88;
+
+function bondForCount(count: number): Bond {
+  if (count >= 250) return 'common';
+  if (count >= 50) return 'echo';
+  return 'whisper';
 }
 
-const sectionLabelStyle = {
-  fontSize: type.small,
-  fontWeight: '600' as const,
-  letterSpacing: 1.2,
-  textTransform: 'uppercase' as const,
-};
-
 export default function TopWordsScreen() {
-  const { submission, requiredLength } = useGame();
+  const { submission } = useGame();
   const { colors } = useTheme();
-  const scrollY = useSharedValue(0);
   const { width } = useWindowDimensions();
   const isWideWeb = Platform.OS === 'web' && width > 700;
   const contentMaxWidth = isWideWeb ? 520 : undefined;
+  const pageWidth = width;
 
-  const scrollHandler = useAnimatedScrollHandler((event) => {
-    scrollY.value = event.contentOffset.y;
-  });
-
-  const headerTitle = useCallback(
-    () => <AnimatedHeaderTitle scrollY={scrollY} />,
-    [scrollY],
-  );
+  const scrollRef = useRef<ScrollView>(null);
+  const [active, setActive] = useState(0);
 
   const userWord = submission?.word;
-  const userInTopList = userWord ? MOCK_TOP_WORDS_TODAY.some((w) => w.word === userWord) : false;
-  const userInNicheList = userWord ? MOCK_NICHE_WORDS_TODAY.some((w) => w.word === userWord) : false;
+
+  const categories = useMemo<Category[]>(() => {
+    const map = new Map<string, number>();
+    for (const w of MOCK_TOP_WORDS_TODAY) map.set(w.word, w.count);
+    for (const w of MOCK_NICHE_WORDS_TODAY) if (!map.has(w.word)) map.set(w.word, w.count);
+    if (userWord && !map.has(userWord)) map.set(userWord, submission?.stats.totalForWord ?? 1);
+    const base: WordRow[] = Array.from(map, ([word, count]) => ({ word, count }));
+
+    return [
+      { key: 'popular', label: 'Popular', rows: [...base].sort((a, b) => b.count - a.count) },
+      { key: 'rare', label: 'Rare', rows: [...base].sort((a, b) => a.count - b.count) },
+      { key: 'alpha', label: 'Alpha', rows: [...base].sort((a, b) => a.word.localeCompare(b.word)) },
+    ];
+  }, [userWord, submission]);
+
+  function goTo(i: number) {
+    if (i === active) return;
+    tapSelection();
+    setActive(i);
+    scrollRef.current?.scrollTo({ x: i * pageWidth, animated: true });
+  }
+
+  function onMomentumEnd(e: NativeSyntheticEvent<NativeScrollEvent>) {
+    const i = Math.round(e.nativeEvent.contentOffset.x / pageWidth);
+    if (i !== active) {
+      tapSelection();
+      setActive(i);
+    }
+  }
+
+  if (!submission) {
+    return (
+      <>
+        <Stack.Screen options={{ title: '' }} />
+        <View style={{ flex: 1, backgroundColor: colors.background, paddingHorizontal: space.lg, paddingTop: space.lg, gap: space.lg }}>
+          <Text style={{ fontSize: 34, fontWeight: '700', color: colors.text, letterSpacing: 0.3 }}>
+            Today’s Words
+          </Text>
+          <Text style={{ fontSize: type.body, color: colors.muted, fontWeight: '500' }}>
+            Choose today’s word first.
+          </Text>
+          <PrimaryButton label="Go to Today" onPress={() => router.replace('/')} />
+        </View>
+      </>
+    );
+  }
 
   return (
     <>
-      <Stack.Screen options={{ headerTitle, title: '' }} />
-      <Animated.ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingHorizontal: space.lg,
-          paddingBottom: space.xl,
-        }}
-        style={{ flex: 1, backgroundColor: colors.background }}
-      >
-        <View style={{ width: '100%', alignSelf: 'center', maxWidth: contentMaxWidth, gap: space.xl }}>
-        <Text
-          style={{
-            fontSize: 34,
-            fontWeight: '700',
-            color: colors.text,
-            letterSpacing: 0.3,
-            paddingTop: space.xs,
-            paddingBottom: 0,
-          }}
-        >
-          Today's Words
-        </Text>
-
-        {!submission ? (
-          <View style={{ gap: space.lg }}>
-            <Text style={{ fontSize: type.body, color: colors.muted, fontWeight: '500' }}>
-              Choose today's word first.
+      <Stack.Screen options={{ title: '' }} />
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
+        <View style={{ paddingHorizontal: space.lg, paddingTop: space.xs, gap: space.md }}>
+          <View style={{ width: '100%', alignSelf: 'center', maxWidth: contentMaxWidth, gap: space.md }}>
+            <Text style={{ fontSize: 34, fontWeight: '700', color: colors.text, letterSpacing: 0.3 }}>
+              Today’s Words
             </Text>
-            <PrimaryButton label="Go to Today" onPress={() => router.replace('/')} />
+            <CategoryTabs categories={categories} active={active} onChange={goTo} />
           </View>
-        ) : (
-          <>
-            <Text style={{ fontSize: type.label, color: colors.muted, fontWeight: '500' }}>
-              {requiredLength} letters today
-            </Text>
-
-            <View style={{ gap: space.sm, marginTop: space.sm }}>
-              <Text style={[sectionLabelStyle, { color: colors.muted }]}>Top Words</Text>
-              <WordListCard
-                words={MOCK_TOP_WORDS_TODAY}
-                userWord={userWord}
-                colors={colors}
-              />
-            </View>
-
-            <View style={{ gap: space.sm, marginTop: space.sm }}>
-              <Text style={[sectionLabelStyle, { color: colors.muted }]}>Most Niche Words</Text>
-              <WordListCard
-                words={MOCK_NICHE_WORDS_TODAY}
-                userWord={userWord}
-                colors={colors}
-              />
-            </View>
-
-            {!userInTopList && !userInNicheList ? (
-              <View style={{ gap: space.sm, marginTop: space.md }}>
-                <Text style={{ fontSize: type.label, color: colors.muted, fontWeight: '500' }}>
-                  Your word
-                </Text>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingHorizontal: space.lg,
-                    paddingVertical: 14,
-                    backgroundColor: colors.surface,
-                    borderRadius: radius.slot,
-                    borderCurve: 'continuous',
-                    borderWidth: 1,
-                    borderColor: colors.line,
-                  }}
-                >
-                  <Text
-                    selectable
-                    style={{ flex: 1, fontSize: type.body, fontWeight: '700', color: colors.accent }}
-                  >
-                    {userWord}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: type.body,
-                      color: colors.muted,
-                      fontVariant: ['tabular-nums'],
-                    }}
-                  >
-                    {submission.stats.overallRank ? `#${submission.stats.overallRank}` : 'new'}
-                  </Text>
-                </View>
-              </View>
-            ) : null}
-          </>
-        )}
         </View>
-      </Animated.ScrollView>
+
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={onMomentumEnd}
+          style={{ flex: 1 }}
+        >
+          {categories.map((cat) => {
+            const max = Math.max(...cat.rows.map((r) => r.count), 1);
+            return (
+              <ScrollView
+                key={cat.key}
+                style={{ width: pageWidth }}
+                contentContainerStyle={{ paddingHorizontal: space.lg, paddingTop: space.md, paddingBottom: space.xl }}
+                showsVerticalScrollIndicator={false}
+              >
+                <View style={{ width: '100%', alignSelf: 'center', maxWidth: contentMaxWidth }}>
+                  {cat.rows.map((row, i) => (
+                    <Row
+                      key={row.word}
+                      rank={i + 1}
+                      row={row}
+                      max={max}
+                      isUser={row.word === userWord}
+                      isLast={i === cat.rows.length - 1}
+                    />
+                  ))}
+                </View>
+              </ScrollView>
+            );
+          })}
+        </ScrollView>
+      </View>
     </>
   );
 }
 
-function WordListCard({
-  words,
-  userWord,
-  colors,
+function CategoryTabs({
+  categories,
+  active,
+  onChange,
 }: {
-  words: { word: string; count: number }[];
-  userWord: string | undefined;
-  colors: ReturnType<typeof useTheme>['colors'];
+  categories: Category[];
+  active: number;
+  onChange: (i: number) => void;
 }) {
+  const { colors } = useTheme();
   return (
-    <View
-      style={{
-        backgroundColor: colors.surface,
-        borderRadius: radius.slot,
-        borderCurve: 'continuous',
-        borderWidth: 1,
-        borderColor: colors.line,
-      }}
-    >
-      {words.map((row, i) => {
-        const isUser = row.word === userWord;
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
+      {categories.map((cat, i) => {
+        const isActive = i === active;
         return (
-          <View
-            key={row.word}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingHorizontal: space.lg,
-              paddingVertical: 14,
-              borderBottomWidth: i === words.length - 1 ? 0 : 1,
-              borderBottomColor: colors.line,
-            }}
-          >
-            <Text
-              style={{
-                width: 28,
-                fontSize: type.body,
-                color: colors.muted,
-                fontVariant: ['tabular-nums'],
-              }}
-            >
-              {i + 1}
-            </Text>
-            <Text
-              selectable
-              style={{
-                flex: 1,
-                fontSize: type.body,
-                fontWeight: isUser ? '700' : '500',
-                color: isUser ? colors.accent : colors.text,
-              }}
-            >
-              {row.word}
-            </Text>
-            <Text
-              selectable
-              style={{
-                fontSize: type.body,
-                color: colors.muted,
-                fontVariant: ['tabular-nums'],
-              }}
-            >
-              {row.count.toLocaleString()}
-            </Text>
+          <View key={cat.key} style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
+            {i > 0 ? <Text style={{ fontSize: type.label, color: colors.muted }}>·</Text> : null}
+            <Pressable onPress={() => onChange(i)} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+              <Text
+                style={{
+                  fontSize: type.label,
+                  fontWeight: '700',
+                  letterSpacing: 1.4,
+                  textTransform: 'uppercase',
+                  color: isActive ? colors.accent : colors.muted,
+                }}
+              >
+                {cat.label}
+              </Text>
+            </Pressable>
           </View>
         );
       })}
+    </View>
+  );
+}
+
+function Row({
+  rank,
+  row,
+  max,
+  isUser,
+  isLast,
+}: {
+  rank: number;
+  row: WordRow;
+  max: number;
+  isUser: boolean;
+  isLast: boolean;
+}) {
+  const { colors, scheme } = useTheme();
+  const bond = bondForCount(row.count);
+  const bc = bondColors[scheme][bond];
+  const fill = Math.max(4, Math.round((row.count / max) * BAR_WIDTH));
+
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space.md,
+        paddingVertical: 14,
+        paddingHorizontal: isUser ? space.sm : 0,
+        marginHorizontal: isUser ? -space.sm : 0,
+        borderRadius: isUser ? radius.slot : 0,
+        borderCurve: 'continuous',
+        backgroundColor: isUser ? colors.surface : 'transparent',
+        borderBottomWidth: isUser || isLast ? 0 : 1,
+        borderBottomColor: colors.line,
+      }}
+    >
+      <Text style={{ width: 24, fontSize: type.label, color: colors.muted, fontVariant: ['tabular-nums'] }}>
+        {String(rank).padStart(2, '0')}
+      </Text>
+
+      <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: bc.dot }} />
+
+      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
+        <Text
+          selectable
+          numberOfLines={1}
+          style={{
+            fontSize: 22,
+            fontWeight: '600',
+            letterSpacing: -0.3,
+            color: isUser ? colors.accent : colors.text,
+          }}
+        >
+          {row.word}
+        </Text>
+        {isUser ? (
+          <Text style={{ fontSize: 11, fontWeight: '700', color: colors.accent, letterSpacing: 1.5 }}>YOU</Text>
+        ) : null}
+      </View>
+
+      <View style={{ width: BAR_WIDTH, height: 4, borderRadius: 2, backgroundColor: colors.line, overflow: 'hidden' }}>
+        <View style={{ width: fill, height: 4, borderRadius: 2, backgroundColor: bc.dot }} />
+      </View>
+
+      <Text
+        style={{
+          width: 48,
+          textAlign: 'right',
+          fontSize: type.body,
+          color: colors.muted,
+          fontVariant: ['tabular-nums'],
+        }}
+      >
+        {row.count.toLocaleString()}
+      </Text>
     </View>
   );
 }
