@@ -98,7 +98,7 @@ export default function SettingsScreen() {
                         tintColor={colors.accent}
                         weight="semibold"
                       />
-                    ) : null
+                    ) : null /* null = explicitly no trailing; undefined would fall back to chevron */
                   }
                 />
               ))}
@@ -248,10 +248,11 @@ function Row({
       <Text style={{ flex: 1, fontSize: type.body, fontWeight: '500', color: tint }}>
         {label}
       </Text>
-      {trailing ??
-        (interactive ? (
-          <SymbolView name="chevron.right" size={13} tintColor={colors.muted} weight="semibold" />
-        ) : null)}
+      {trailing !== undefined
+        ? trailing
+        : interactive
+          ? <SymbolView name="chevron.right" size={13} tintColor={colors.muted} weight="semibold" />
+          : null}
     </Pressable>
   );
 }
