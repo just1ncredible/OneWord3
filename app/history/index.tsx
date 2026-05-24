@@ -66,16 +66,7 @@ function SegmentedToggle({
     { key: 'calendar', label: 'Calendar' },
   ];
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        backgroundColor: colors.line,
-        borderRadius: radius.button,
-        borderCurve: 'continuous',
-        padding: 3,
-        gap: 3,
-      }}
-    >
+    <View style={{ flexDirection: 'row', gap: space.lg }}>
       {options.map((o) => {
         const active = value === o.key;
         return (
@@ -86,27 +77,25 @@ function SegmentedToggle({
               tapSelection();
               onChange(o.key);
             }}
-            style={{
-              flex: 1,
-              paddingVertical: 9,
-              borderRadius: radius.button - 3,
-              borderCurve: 'continuous',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: active ? colors.accentSoft : 'transparent',
-              boxShadow: active ? '0 1px 3px rgba(0,0,0,0.10)' : undefined,
-            }}
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, gap: 5 })}
           >
             <Text
               style={{
-                fontSize: type.label,
-                fontWeight: '600',
+                fontSize: type.body,
+                fontWeight: active ? '700' : '500',
+                color: active ? colors.text : colors.muted,
                 letterSpacing: 0.2,
-                color: active ? colors.accentInk : colors.muted,
               }}
             >
               {o.label}
             </Text>
+            <View
+              style={{
+                height: 2,
+                borderRadius: 1,
+                backgroundColor: active ? colors.accent : 'transparent',
+              }}
+            />
           </Pressable>
         );
       })}
