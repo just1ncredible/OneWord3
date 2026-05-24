@@ -1,7 +1,8 @@
 import { router, Stack } from 'expo-router';
 import { useCallback } from 'react';
 import { Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
-import { SymbolView, type SymbolViewProps } from 'expo-symbols';
+import { type SymbolViewProps } from 'expo-symbols';
+import { Icon } from '@/components/icon';
 import Animated, {
   interpolate,
   useAnimatedScrollHandler,
@@ -92,7 +93,7 @@ export default function SettingsScreen() {
                   isLast={i === THEME_OPTIONS.length - 1}
                   trailing={
                     mode === opt.mode ? (
-                      <SymbolView
+                      <Icon
                         name="checkmark"
                         size={16}
                         tintColor={colors.accent}
@@ -157,7 +158,7 @@ function ProfileCard() {
           justifyContent: 'center',
         }}
       >
-        <SymbolView name="person.fill" size={26} tintColor={colors.accentInk} />
+        <Icon name="person.fill" size={26} tintColor={colors.accentInk} />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: type.body, fontWeight: '700', color: colors.text, letterSpacing: -0.2 }}>
@@ -244,14 +245,14 @@ function Row({
         opacity: pressed && interactive ? 0.6 : 1,
       })}
     >
-      <SymbolView name={icon} size={20} tintColor={tint} />
+      <Icon name={icon} size={20} tintColor={tint} />
       <Text style={{ flex: 1, fontSize: type.body, fontWeight: '500', color: tint }}>
         {label}
       </Text>
       {trailing !== undefined
         ? trailing
         : interactive
-          ? <SymbolView name="chevron.right" size={13} tintColor={colors.muted} weight="semibold" />
+          ? <Icon name="chevron.right" size={13} tintColor={colors.muted} weight="semibold" />
           : null}
     </Pressable>
   );

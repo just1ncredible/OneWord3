@@ -1,6 +1,6 @@
 import { router, Stack } from 'expo-router';
 import { Platform, Pressable, Share, Text, View, useWindowDimensions } from 'react-native';
-import { SymbolView } from 'expo-symbols';
+import { Icon } from '@/components/icon';
 import ReorderableList, {
   useReorderableDrag,
   type ReorderableListReorderEvent,
@@ -81,7 +81,7 @@ function ManageHeader() {
           hitSlop={10}
           style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, paddingTop: 4 })}
         >
-          <SymbolView name="xmark" size={20} tintColor={colors.muted} weight="semibold" />
+          <Icon name="xmark" size={20} tintColor={colors.muted} weight="semibold" />
         </Pressable>
       </View>
 
@@ -96,7 +96,7 @@ function ManageHeader() {
             justifyContent: 'center',
           }}
         >
-          <SymbolView name="person.line.dotted.person.fill" size={46} tintColor={colors.accent} />
+          <Icon name="person.line.dotted.person.fill" size={46} tintColor={colors.accent} />
         </View>
 
         <Text
@@ -137,7 +137,7 @@ function ManageHeader() {
             opacity: pressed ? 0.88 : 1,
           })}
         >
-          <SymbolView name="person.badge.plus" size={20} tintColor={colors.onAccent} />
+          <Icon name="person.badge.plus" size={20} tintColor={colors.onAccent} />
           <Text style={{ fontSize: type.body, fontWeight: '700', color: colors.onAccent, letterSpacing: 0.2 }}>
             Invite a friend
           </Text>
@@ -202,14 +202,14 @@ function ManageRow({ friend, onRemove }: { friend: Friend; onRemove: () => void 
         {friend.name}
       </Text>
 
-      <SymbolView name="line.3.horizontal" size={20} tintColor={colors.muted} />
+      <Icon name="line.3.horizontal" size={20} tintColor={colors.muted} />
 
       <Pressable
         onPress={onRemove}
         hitSlop={8}
         style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
       >
-        <SymbolView name="minus.circle.fill" size={22} tintColor={colors.accent2} />
+        <Icon name="minus.circle.fill" size={22} tintColor={colors.accent2} />
       </Pressable>
     </Pressable>
   );

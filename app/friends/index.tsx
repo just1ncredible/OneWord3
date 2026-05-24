@@ -1,7 +1,7 @@
 import { router, Stack } from 'expo-router';
 import { useCallback } from 'react';
 import { Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
-import { SymbolView } from 'expo-symbols';
+import { Icon } from '@/components/icon';
 import Animated, {
   FadeIn,
   interpolate,
@@ -84,7 +84,7 @@ export default function FriendsScreen() {
                 hitSlop={10}
                 style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, width: 34, alignItems: 'center' })}
               >
-                <SymbolView name="person.badge.plus" size={30} tintColor={colors.accent} />
+                <Icon name="person.badge.plus" size={30} tintColor={colors.accent} />
               </Pressable>
             </View>
 
@@ -99,7 +99,7 @@ export default function FriendsScreen() {
                 opacity: pressed ? 0.6 : 1,
               })}
             >
-              <SymbolView name="person.2" size={15} tintColor={colors.muted} />
+              <Icon name="person.2" size={15} tintColor={colors.muted} />
               <Text style={{ fontSize: type.label, color: colors.muted, fontWeight: '600' }}>
                 Manage friends
               </Text>
@@ -205,7 +205,7 @@ function FriendRow({
           </Text>
         ) : (
           <View style={{ width: 34, alignItems: 'center' }}>
-            <SymbolView name="lock.fill" size={18} tintColor={colors.muted} />
+            <Icon name="lock.fill" size={18} tintColor={colors.muted} />
           </View>
         )
       ) : (
