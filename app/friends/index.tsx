@@ -1,6 +1,7 @@
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { useCallback } from 'react';
-import { Platform, Pressable, Share, Text, View, useWindowDimensions } from 'react-native';
+import { Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { SymbolView } from 'expo-symbols';
 import Animated, {
   FadeIn,
   interpolate,
@@ -9,11 +10,12 @@ import Animated, {
   useSharedValue,
   type SharedValue,
 } from 'react-native-reanimated';
+import { useFriends } from '@/components/friends-provider';
 import { useGame } from '@/components/game-provider';
 import { useTheme } from '@/components/theme-provider';
 import { bondColors, space, type } from '@/constants/theme';
 import { tapLight } from '@/lib/haptics';
-import { BOND_LABEL, SEED_FRIENDS, type Friend } from '@/lib/mock-friends';
+import { BOND_LABEL, type Friend } from '@/lib/mock-friends';
 
 function AnimatedHeaderTitle({ scrollY }: { scrollY: SharedValue<number> }) {
   const { colors } = useTheme();
@@ -48,21 +50,13 @@ export default function FriendsScreen() {
     [scrollY],
   );
 
-  const friends = SEED_FRIENDS;
+  const { friends } = useFriends();
   const myWord = submission?.word.toLowerCase() ?? null;
   const isMatch = (f: Friend) => !!myWord && f.word?.toLowerCase() === myWord;
 
-  const playedCount = friends.filter((f) => f.word).length;
-  const matchCount = friends.filter(isMatch).length;
-  const eyebrow = submission
-    ? `${matchCount} of ${friends.length} matched you today`
-    : `${playedCount} of ${friends.length} played today`;
-
-  function handleInvite() {
+  function openManage() {
     tapLight();
-    Share.share({
-      message: 'Play OneWord with me — one word, one day, one shared length.',
-    }).catch(() => {});
+    router.push('/friends/manage');
   }
 
   return (
@@ -81,40 +75,35 @@ export default function FriendsScreen() {
       >
         <View style={{ width: '100%', alignSelf: 'center', maxWidth: contentMaxWidth, gap: space.lg }}>
           <View style={{ gap: space.sm, paddingTop: space.xs }}>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <Text style={{ fontSize: 34, fontWeight: '700', color: colors.text, letterSpacing: 0.3 }}>
                 Friends
               </Text>
               <Pressable
-                onPress={handleInvite}
+                onPress={openManage}
                 hitSlop={10}
                 style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
               >
-                <Text
-                  style={{
-                    fontSize: type.small,
-                    fontWeight: '700',
-                    color: colors.accent,
-                    letterSpacing: 1.4,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  + Invite
-                </Text>
+                <SymbolView name="person.badge.plus" size={34} tintColor={colors.accent} />
               </Pressable>
             </View>
 
-            <Text
-              style={{
-                fontSize: type.small,
-                fontWeight: '600',
-                color: colors.accent,
-                letterSpacing: 1.6,
-                textTransform: 'uppercase',
-              }}
+            <Pressable
+              onPress={openManage}
+              hitSlop={8}
+              style={({ pressed }) => ({
+                flexDirection: 'row',
+                alignItems: 'center',
+                alignSelf: 'flex-start',
+                gap: 6,
+                opacity: pressed ? 0.6 : 1,
+              })}
             >
-              {eyebrow}
-            </Text>
+              <SymbolView name="person.2" size={15} tintColor={colors.muted} />
+              <Text style={{ fontSize: type.label, color: colors.muted, fontWeight: '600' }}>
+                Manage friends
+              </Text>
+            </Pressable>
           </View>
 
           <Animated.View entering={FadeIn.duration(220)}>

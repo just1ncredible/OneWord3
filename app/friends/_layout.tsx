@@ -14,6 +14,15 @@ export default function FriendsLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ title: '' }} />
+      <Stack.Screen
+        name="manage"
+        options={{
+          presentation: 'formSheet',
+          sheetGrabberVisible: false,
+          sheetAllowedDetents: [0.85, 1],
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }
