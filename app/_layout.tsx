@@ -29,7 +29,7 @@ function ThemedTabs() {
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="history">
           <Icon sf={{ default: 'clock', selected: 'clock.fill' }} />
-          <Label>History</Label>
+          <Label>Memories</Label>
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="settings">
           <Icon sf={{ default: 'gearshape', selected: 'gearshape.fill' }} />

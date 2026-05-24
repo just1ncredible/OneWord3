@@ -45,7 +45,7 @@ function AnimatedHeaderTitle({ scrollY }: { scrollY: SharedValue<number> }) {
       <Animated.Text
         style={[{ fontSize: type.body, fontWeight: '600', color: colors.text }, animatedStyle]}
       >
-        History
+        Memories
       </Animated.Text>
     </View>
   );
@@ -157,7 +157,7 @@ export default function HistoryScreen() {
             paddingTop: space.xs,
           }}
         >
-          History
+          Memories
         </Text>
 
         <SegmentedToggle value={view} onChange={setView} />
