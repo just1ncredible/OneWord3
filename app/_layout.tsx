@@ -31,6 +31,10 @@ function ThemedTabs() {
           <Icon sf={{ default: 'clock', selected: 'clock.fill' }} />
           <Label>Memories</Label>
         </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="friends">
+          <Icon sf={{ default: 'person.2', selected: 'person.2.fill' }} />
+          <Label>Friends</Label>
+        </NativeTabs.Trigger>
         <NativeTabs.Trigger name="settings">
           <Icon sf={{ default: 'gearshape', selected: 'gearshape.fill' }} />
           <Label>Settings</Label>

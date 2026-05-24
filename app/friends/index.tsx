@@ -1,0 +1,242 @@
+import { Stack } from 'expo-router';
+import { useCallback } from 'react';
+import { Platform, Pressable, Share, Text, View, useWindowDimensions } from 'react-native';
+import Animated, {
+  FadeIn,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  type SharedValue,
+} from 'react-native-reanimated';
+import { useGame } from '@/components/game-provider';
+import { useTheme } from '@/components/theme-provider';
+import { bondColors, space, type } from '@/constants/theme';
+import { tapLight } from '@/lib/haptics';
+import { BOND_LABEL, SEED_FRIENDS, type Friend } from '@/lib/mock-friends';
+
+function AnimatedHeaderTitle({ scrollY }: { scrollY: SharedValue<number> }) {
+  const { colors } = useTheme();
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollY.value, [44, 68], [0, 1], 'clamp'),
+  }));
+  return (
+    <View pointerEvents="none">
+      <Animated.Text
+        style={[{ fontSize: type.body, fontWeight: '600', color: colors.text }, animatedStyle]}
+      >
+        Friends
+      </Animated.Text>
+    </View>
+  );
+}
+
+export default function FriendsScreen() {
+  const { submission } = useGame();
+  const { colors } = useTheme();
+  const scrollY = useSharedValue(0);
+  const { width } = useWindowDimensions();
+  const isWideWeb = Platform.OS === 'web' && width > 700;
+  const contentMaxWidth = isWideWeb ? 520 : undefined;
+
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    scrollY.value = event.contentOffset.y;
+  });
+
+  const headerTitle = useCallback(
+    () => <AnimatedHeaderTitle scrollY={scrollY} />,
+    [scrollY],
+  );
+
+  const friends = SEED_FRIENDS;
+  const myWord = submission?.word.toLowerCase() ?? null;
+  const isMatch = (f: Friend) => !!myWord && f.word?.toLowerCase() === myWord;
+
+  const playedCount = friends.filter((f) => f.word).length;
+  const matchCount = friends.filter(isMatch).length;
+  const eyebrow = submission
+    ? `${matchCount} of ${friends.length} matched you today`
+    : `${playedCount} of ${friends.length} played today`;
+
+  function handleInvite() {
+    tapLight();
+    Share.share({
+      message: 'Play OneWord with me — one word, one day, one shared length.',
+    }).catch(() => {});
+  }
+
+  return (
+    <>
+      <Stack.Screen options={{ headerTitle, title: '' }} />
+      <Animated.ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingHorizontal: space.lg,
+          paddingBottom: space.xl,
+        }}
+        style={{ flex: 1, backgroundColor: colors.background }}
+      >
+        <View style={{ width: '100%', alignSelf: 'center', maxWidth: contentMaxWidth, gap: space.lg }}>
+          <View style={{ gap: space.sm, paddingTop: space.xs }}>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
+              <Text style={{ fontSize: 34, fontWeight: '700', color: colors.text, letterSpacing: 0.3 }}>
+                Friends
+              </Text>
+              <Pressable
+                onPress={handleInvite}
+                hitSlop={10}
+                style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+              >
+                <Text
+                  style={{
+                    fontSize: type.small,
+                    fontWeight: '700',
+                    color: colors.accent,
+                    letterSpacing: 1.4,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  + Invite
+                </Text>
+              </Pressable>
+            </View>
+
+            <Text
+              style={{
+                fontSize: type.small,
+                fontWeight: '600',
+                color: colors.accent,
+                letterSpacing: 1.6,
+                textTransform: 'uppercase',
+              }}
+            >
+              {eyebrow}
+            </Text>
+          </View>
+
+          <Animated.View entering={FadeIn.duration(220)}>
+            {friends.map((f, i) => (
+              <FriendRow
+                key={f.id}
+                friend={f}
+                matched={isMatch(f)}
+                isLast={i === friends.length - 1}
+              />
+            ))}
+          </Animated.View>
+        </View>
+      </Animated.ScrollView>
+    </>
+  );
+}
+
+function FriendRow({
+  friend,
+  matched,
+  isLast,
+}: {
+  friend: Friend;
+  matched: boolean;
+  isLast: boolean;
+}) {
+  const { colors, scheme } = useTheme();
+  const played = !!friend.word;
+  const bc = friend.bond ? bondColors[scheme][friend.bond] : null;
+  const initial = friend.name.charAt(0).toUpperCase();
+
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space.md,
+        paddingVertical: 14,
+        borderBottomWidth: isLast ? 0 : 1,
+        borderBottomColor: colors.line,
+        opacity: played ? 1 : 0.55,
+      }}
+    >
+      <View
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 22,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: matched ? colors.accentSoft : colors.surface,
+          borderWidth: 1,
+          borderColor: matched ? 'transparent' : colors.line,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: type.body,
+            fontWeight: '700',
+            color: matched ? colors.accentInk : played ? colors.text : colors.muted,
+          }}
+        >
+          {initial}
+        </Text>
+      </View>
+
+      <View style={{ flex: 1, gap: 2 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
+          <Text
+            style={{
+              fontSize: type.body,
+              fontWeight: '700',
+              color: played ? colors.text : colors.muted,
+              letterSpacing: -0.2,
+            }}
+          >
+            {friend.name}
+          </Text>
+          {matched ? (
+            <Text style={{ fontSize: 11, fontWeight: '700', color: colors.accent, letterSpacing: 1.2 }}>
+              MATCH
+            </Text>
+          ) : null}
+        </View>
+        {played ? (
+          <Text style={{ fontSize: 15, color: colors.muted, fontWeight: '500' }}>{friend.word}</Text>
+        ) : (
+          <Text style={{ fontSize: 15, color: colors.muted, fontStyle: 'italic' }}>
+            {'— hasn’t played'}
+          </Text>
+        )}
+      </View>
+
+      {played && bc && friend.bond ? (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            paddingHorizontal: space.md,
+            paddingVertical: 6,
+            borderRadius: 999,
+            backgroundColor: colors.surface,
+            borderWidth: 1,
+            borderColor: colors.line,
+          }}
+        >
+          <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: bc.dot }} />
+          <Text
+            style={{
+              fontSize: type.small,
+              fontWeight: '700',
+              letterSpacing: 1,
+              color: bc.ink,
+              textTransform: 'uppercase',
+            }}
+          >
+            {BOND_LABEL[friend.bond]}
+          </Text>
+        </View>
+      ) : null}
+    </View>
+  );
+}

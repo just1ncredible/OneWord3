@@ -58,6 +58,23 @@ export const type = {
   small: 13,
 };
 
+export type Bond = 'common' | 'echo' | 'whisper';
+
+type BondColor = { dot: string; ink: string };
+
+export const bondColors: Record<'light' | 'dark', Record<Bond, BondColor>> = {
+  light: {
+    common: { dot: '#C8912C', ink: '#8A6310' },
+    echo: { dot: '#4F7D5A', ink: '#3D6347' },
+    whisper: { dot: '#7A68B0', ink: '#5C4C90' },
+  },
+  dark: {
+    common: { dot: '#D4A03A', ink: '#E0AE48' },
+    echo: { dot: '#8DBA7D', ink: '#9DCB8D' },
+    whisper: { dot: '#B6A6E0', ink: '#C3B6E8' },
+  },
+};
+
 export const radius = {
   button: 16,
   slot: 14,
