@@ -1,6 +1,7 @@
 import { NativeTabs, Icon, Label } from 'expo-router/unstable-native-tabs';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { FriendsProvider } from '@/components/friends-provider';
 import { GameProvider } from '@/components/game-provider';
@@ -8,15 +9,17 @@ import { ThemeProvider, useTheme } from '@/components/theme-provider';
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <GameProvider>
-          <FriendsProvider>
-            <ThemedTabs />
-          </FriendsProvider>
-        </GameProvider>
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <GameProvider>
+            <FriendsProvider>
+              <ThemedTabs />
+            </FriendsProvider>
+          </GameProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
