@@ -13,9 +13,9 @@ import Animated, {
 import { useFriends } from '@/components/friends-provider';
 import { useGame } from '@/components/game-provider';
 import { useTheme } from '@/components/theme-provider';
-import { bondColors, space, type } from '@/constants/theme';
+import { space, type } from '@/constants/theme';
 import { tapLight } from '@/lib/haptics';
-import { BOND_LABEL, type Friend } from '@/lib/mock-friends';
+import { type Friend } from '@/lib/mock-friends';
 
 function AnimatedHeaderTitle({ scrollY }: { scrollY: SharedValue<number> }) {
   const { colors } = useTheme();
@@ -76,15 +76,20 @@ export default function FriendsScreen() {
         <View style={{ width: '100%', alignSelf: 'center', maxWidth: contentMaxWidth, gap: space.lg }}>
           <View style={{ gap: space.sm, paddingTop: space.xs }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Text style={{ fontSize: 34, fontWeight: '700', color: colors.text, letterSpacing: 0.3 }}>
+              <Text style={{ fontSize: 34, lineHeight: 34, fontWeight: '700', color: colors.text, letterSpacing: 0.3 }}>
                 Friends
               </Text>
               <Pressable
                 onPress={openManage}
                 hitSlop={10}
-                style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+                style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, justifyContent: 'center' })}
               >
-                <SymbolView name="person.badge.plus" size={34} tintColor={colors.accent} />
+                <SymbolView
+                  name="person.badge.plus"
+                  size={30}
+                  tintColor={colors.accent}
+                  style={{ width: 34, height: 34 }}
+                />
               </Pressable>
             </View>
 
@@ -112,6 +117,7 @@ export default function FriendsScreen() {
                 key={f.id}
                 friend={f}
                 matched={isMatch(f)}
+                revealed={!!submission}
                 isLast={i === friends.length - 1}
               />
             ))}
@@ -125,15 +131,16 @@ export default function FriendsScreen() {
 function FriendRow({
   friend,
   matched,
+  revealed,
   isLast,
 }: {
   friend: Friend;
   matched: boolean;
+  revealed: boolean;
   isLast: boolean;
 }) {
-  const { colors, scheme } = useTheme();
+  const { colors } = useTheme();
   const played = !!friend.word;
-  const bc = friend.bond ? bondColors[scheme][friend.bond] : null;
   const initial = friend.name.charAt(0).toUpperCase();
 
   return (
@@ -171,61 +178,46 @@ function FriendRow({
         </Text>
       </View>
 
-      <View style={{ flex: 1, gap: 2 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
+      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
+        <Text
+          style={{
+            fontSize: type.body,
+            fontWeight: '700',
+            color: played ? colors.text : colors.muted,
+            letterSpacing: -0.2,
+          }}
+        >
+          {friend.name}
+        </Text>
+        {matched ? (
+          <Text style={{ fontSize: 11, fontWeight: '700', color: colors.accent, letterSpacing: 1.2 }}>
+            MATCH
+          </Text>
+        ) : null}
+      </View>
+
+      {friend.word ? (
+        revealed ? (
           <Text
             style={{
               fontSize: type.body,
-              fontWeight: '700',
-              color: played ? colors.text : colors.muted,
+              fontWeight: '600',
+              color: matched ? colors.accent : colors.text,
               letterSpacing: -0.2,
             }}
           >
-            {friend.name}
+            {friend.word}
           </Text>
-          {matched ? (
-            <Text style={{ fontSize: 11, fontWeight: '700', color: colors.accent, letterSpacing: 1.2 }}>
-              MATCH
-            </Text>
-          ) : null}
-        </View>
-        {played ? (
-          <Text style={{ fontSize: 15, color: colors.muted, fontWeight: '500' }}>{friend.word}</Text>
         ) : (
-          <Text style={{ fontSize: 15, color: colors.muted, fontStyle: 'italic' }}>
-            {'— hasn’t played'}
+          <Text style={{ fontSize: type.body, color: colors.muted, letterSpacing: 2 }}>
+            {'•'.repeat(friend.word.length)}
           </Text>
-        )}
-      </View>
-
-      {played && bc && friend.bond ? (
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 6,
-            paddingHorizontal: space.md,
-            paddingVertical: 6,
-            borderRadius: 999,
-            backgroundColor: colors.surface,
-            borderWidth: 1,
-            borderColor: colors.line,
-          }}
-        >
-          <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: bc.dot }} />
-          <Text
-            style={{
-              fontSize: type.small,
-              fontWeight: '700',
-              letterSpacing: 1,
-              color: bc.ink,
-              textTransform: 'uppercase',
-            }}
-          >
-            {BOND_LABEL[friend.bond]}
-          </Text>
-        </View>
-      ) : null}
+        )
+      ) : (
+        <Text style={{ fontSize: 15, color: colors.muted, fontStyle: 'italic' }}>
+          {'— hasn’t played'}
+        </Text>
+      )}
     </View>
   );
 }
