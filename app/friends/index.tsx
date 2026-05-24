@@ -82,14 +82,9 @@ export default function FriendsScreen() {
               <Pressable
                 onPress={openManage}
                 hitSlop={10}
-                style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, justifyContent: 'center' })}
+                style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, width: 34, alignItems: 'center' })}
               >
-                <SymbolView
-                  name="person.badge.plus"
-                  size={30}
-                  tintColor={colors.accent}
-                  style={{ width: 34, height: 34 }}
-                />
+                <SymbolView name="person.badge.plus" size={30} tintColor={colors.accent} />
               </Pressable>
             </View>
 
@@ -209,9 +204,9 @@ function FriendRow({
             {friend.word}
           </Text>
         ) : (
-          <Text style={{ fontSize: type.body, color: colors.muted, letterSpacing: 2 }}>
-            {'•'.repeat(friend.word.length)}
-          </Text>
+          <View style={{ width: 34, alignItems: 'center' }}>
+            <SymbolView name="lock.fill" size={18} tintColor={colors.muted} />
+          </View>
         )
       ) : (
         <Text style={{ fontSize: 15, color: colors.muted, fontStyle: 'italic' }}>
