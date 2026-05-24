@@ -51,7 +51,6 @@ export default function TopWordsScreen() {
     return [
       { key: 'popular', label: 'Popular', rows: [...base].sort((a, b) => b.count - a.count) },
       { key: 'rare', label: 'Rare', rows: [...base].sort((a, b) => a.count - b.count) },
-      { key: 'alpha', label: 'Alpha', rows: [...base].sort((a, b) => a.word.localeCompare(b.word)) },
     ];
   }, [userWord, submission]);
 
@@ -149,26 +148,33 @@ function CategoryTabs({
 }) {
   const { colors } = useTheme();
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
+    <View style={{ flexDirection: 'row', gap: space.lg }}>
       {categories.map((cat, i) => {
         const isActive = i === active;
         return (
-          <View key={cat.key} style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
-            {i > 0 ? <Text style={{ fontSize: type.label, color: colors.muted }}>·</Text> : null}
-            <Pressable onPress={() => onChange(i)} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
-              <Text
-                style={{
-                  fontSize: type.label,
-                  fontWeight: '700',
-                  letterSpacing: 1.4,
-                  textTransform: 'uppercase',
-                  color: isActive ? colors.accent : colors.muted,
-                }}
-              >
-                {cat.label}
-              </Text>
-            </Pressable>
-          </View>
+          <Pressable
+            key={cat.key}
+            onPress={() => onChange(i)}
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, gap: 5 })}
+          >
+            <Text
+              style={{
+                fontSize: type.body,
+                fontWeight: isActive ? '700' : '500',
+                color: isActive ? colors.text : colors.muted,
+                letterSpacing: 0.2,
+              }}
+            >
+              {cat.label}
+            </Text>
+            <View
+              style={{
+                height: 2,
+                borderRadius: 1,
+                backgroundColor: isActive ? colors.accent : 'transparent',
+              }}
+            />
+          </Pressable>
         );
       })}
     </View>
