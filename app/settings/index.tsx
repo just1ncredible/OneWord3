@@ -1,6 +1,7 @@
 import { router, Stack } from 'expo-router';
 import { useCallback } from 'react';
 import { Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import Animated, {
   interpolate,
   useAnimatedScrollHandler,
@@ -12,10 +13,10 @@ import { useGame } from '@/components/game-provider';
 import { useTheme, type ThemeMode } from '@/components/theme-provider';
 import { radius, space, type } from '@/constants/theme';
 
-const THEME_OPTIONS: { mode: ThemeMode; label: string; hint: string }[] = [
-  { mode: 'system', label: 'System', hint: 'Follow device appearance' },
-  { mode: 'light', label: 'Light', hint: 'Warm off-white' },
-  { mode: 'dark', label: 'Dark', hint: 'Quiet ink' },
+const THEME_OPTIONS: { mode: ThemeMode; label: string; icon: SymbolViewProps['name'] }[] = [
+  { mode: 'system', label: 'System', icon: 'circle.lefthalf.filled' },
+  { mode: 'light', label: 'Light', icon: 'sun.max.fill' },
+  { mode: 'dark', label: 'Dark', icon: 'moon.fill' },
 ];
 
 function AnimatedHeaderTitle({ scrollY }: { scrollY: SharedValue<number> }) {
@@ -66,114 +67,107 @@ export default function SettingsScreen() {
         style={{ flex: 1, backgroundColor: colors.background }}
       >
         <View style={{ width: '100%', alignSelf: 'center', maxWidth: contentMaxWidth, gap: space.xl }}>
-        <Text
-          style={{
-            fontSize: 34,
-            fontWeight: '700',
-            color: colors.text,
-            letterSpacing: 0.3,
-            paddingTop: space.xs,
-            paddingBottom: 0,
-          }}
-        >
-          Settings
-        </Text>
-
-        <Section title="Appearance">
-          <View
+          <Text
             style={{
-              backgroundColor: colors.surface,
-              borderWidth: 1,
-              borderColor: colors.line,
-              borderRadius: radius.slot,
-              borderCurve: 'continuous',
-              overflow: 'hidden',
+              fontSize: 34,
+              fontWeight: '700',
+              color: colors.text,
+              letterSpacing: 0.3,
+              paddingTop: space.xs,
             }}
           >
-            {THEME_OPTIONS.map((opt, i) => {
-              const selected = mode === opt.mode;
-              return (
-                <Pressable
-                  key={opt.mode}
-                  onPress={() => setMode(opt.mode)}
-                  style={({ pressed }) => ({
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingHorizontal: space.lg,
-                    paddingVertical: 14,
-                    borderBottomWidth: i === THEME_OPTIONS.length - 1 ? 0 : 1,
-                    borderBottomColor: colors.line,
-                    opacity: pressed ? 0.88 : 1,
-                  })}
-                >
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: type.body, color: colors.text, fontWeight: '500' }}>
-                      {opt.label}
-                    </Text>
-                    <Text style={{ fontSize: type.small, color: colors.muted, marginTop: 2 }}>
-                      {opt.hint}
-                    </Text>
-                  </View>
-                  <Text
-                    style={{
-                      fontSize: 20,
-                      color: selected ? colors.accent : 'transparent',
-                      fontWeight: '600',
-                    }}
-                  >
-                    ✓
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </Section>
-
-        <Section title="Account">
-          <Row label="Anonymous player" />
-        </Section>
-
-        <Section title="About">
-          <Text style={{ fontSize: type.body, color: colors.text, lineHeight: 24 }}>
-            One word. One day. One shared length.
+            Settings
           </Text>
-        </Section>
 
-        <Section title="Prototype">
-          <Pressable
-            onPress={() => {
-              resetToday();
-              router.replace('/');
-            }}
-            disabled={!submission}
-            style={({ pressed }) => ({
-              backgroundColor: colors.surface,
-              borderWidth: 1,
-              borderColor: colors.line,
-              borderRadius: radius.button,
-              borderCurve: 'continuous',
-              paddingVertical: 14,
-              paddingHorizontal: space.lg,
-              opacity: pressed ? 0.88 : 1,
-            })}
-          >
-            <Text
-              style={{
-                fontSize: type.body,
-                fontWeight: '600',
-                color: submission ? colors.accent2 : colors.muted,
-              }}
-            >
-              Reset today's word
-            </Text>
-            <Text style={{ fontSize: type.small, color: colors.muted, marginTop: 2 }}>
-              Dev only — clears your mock submission so you can re-try the loop.
-            </Text>
-          </Pressable>
-        </Section>
+          <ProfileCard />
+
+          <Section title="Appearance">
+            <Card>
+              {THEME_OPTIONS.map((opt, i) => (
+                <Row
+                  key={opt.mode}
+                  icon={opt.icon}
+                  label={opt.label}
+                  onPress={() => setMode(opt.mode)}
+                  isLast={i === THEME_OPTIONS.length - 1}
+                  trailing={
+                    mode === opt.mode ? (
+                      <SymbolView
+                        name="checkmark"
+                        size={16}
+                        tintColor={colors.accent}
+                        weight="semibold"
+                      />
+                    ) : null
+                  }
+                />
+              ))}
+            </Card>
+          </Section>
+
+          <Section title="About">
+            <Card>
+              <Row icon="info.circle" label="One word. One day. One shared length." />
+            </Card>
+          </Section>
+
+          <Section title="Developer">
+            <Card>
+              <Row
+                icon="arrow.counterclockwise"
+                label="Reset today's word"
+                onPress={() => {
+                  resetToday();
+                  router.replace('/');
+                }}
+                disabled={!submission}
+                destructive
+              />
+            </Card>
+          </Section>
         </View>
       </Animated.ScrollView>
     </>
+  );
+}
+
+function ProfileCard() {
+  const { colors } = useTheme();
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space.md,
+        backgroundColor: colors.surface,
+        borderWidth: 1,
+        borderColor: colors.line,
+        borderRadius: radius.slot,
+        borderCurve: 'continuous',
+        padding: space.md,
+      }}
+    >
+      <View
+        style={{
+          width: 52,
+          height: 52,
+          borderRadius: 26,
+          backgroundColor: colors.accentSoft,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <SymbolView name="person.fill" size={26} tintColor={colors.accentInk} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: type.body, fontWeight: '700', color: colors.text, letterSpacing: -0.2 }}>
+          Anonymous player
+        </Text>
+        <Text style={{ fontSize: type.small, color: colors.muted, marginTop: 2 }}>
+          One word a day.
+        </Text>
+      </View>
+    </View>
   );
 }
 
@@ -197,7 +191,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Row({ label }: { label: string }) {
+function Card({ children }: { children: React.ReactNode }) {
   const { colors } = useTheme();
   return (
     <View
@@ -207,11 +201,57 @@ function Row({ label }: { label: string }) {
         borderColor: colors.line,
         borderRadius: radius.slot,
         borderCurve: 'continuous',
-        paddingVertical: 14,
-        paddingHorizontal: space.lg,
+        overflow: 'hidden',
       }}
     >
-      <Text style={{ fontSize: type.body, color: colors.text }}>{label}</Text>
+      {children}
     </View>
+  );
+}
+
+function Row({
+  icon,
+  label,
+  onPress,
+  trailing,
+  isLast = true,
+  disabled = false,
+  destructive = false,
+}: {
+  icon: SymbolViewProps['name'];
+  label: string;
+  onPress?: () => void;
+  trailing?: React.ReactNode;
+  isLast?: boolean;
+  disabled?: boolean;
+  destructive?: boolean;
+}) {
+  const { colors } = useTheme();
+  const tint = disabled ? colors.muted : destructive ? colors.accent2 : colors.text;
+  const interactive = !!onPress && !disabled;
+  return (
+    <Pressable
+      onPress={interactive ? onPress : undefined}
+      disabled={!interactive}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space.md,
+        paddingHorizontal: space.lg,
+        paddingVertical: 14,
+        borderBottomWidth: isLast ? 0 : 1,
+        borderBottomColor: colors.line,
+        opacity: pressed && interactive ? 0.6 : 1,
+      })}
+    >
+      <SymbolView name={icon} size={20} tintColor={tint} />
+      <Text style={{ flex: 1, fontSize: type.body, fontWeight: '500', color: tint }}>
+        {label}
+      </Text>
+      {trailing ??
+        (interactive ? (
+          <SymbolView name="chevron.right" size={13} tintColor={colors.muted} weight="semibold" />
+        ) : null)}
+    </Pressable>
   );
 }
