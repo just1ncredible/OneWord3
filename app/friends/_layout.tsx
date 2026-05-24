@@ -19,7 +19,7 @@ export default function FriendsLayout() {
         options={{
           presentation: 'formSheet',
           sheetGrabberVisible: false,
-          sheetAllowedDetents: [0.85, 1],
+          sheetAllowedDetents: [1.0],
           headerShown: false,
         }}
       />
