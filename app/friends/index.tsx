@@ -209,9 +209,9 @@ function FriendRow({
           </View>
         )
       ) : (
-        <Text style={{ fontSize: 15, color: colors.muted, fontStyle: 'italic' }}>
-          {'— hasn’t played'}
-        </Text>
+        <View style={{ width: 34, alignItems: 'center' }}>
+          <Icon name="clock" size={18} tintColor={colors.muted} />
+        </View>
       )}
     </View>
   );

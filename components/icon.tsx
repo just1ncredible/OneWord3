@@ -20,6 +20,7 @@ const SF_TO_MCI: Partial<Record<IconName, MciName>> = {
   'person.badge.plus': 'account-plus',
   'person.2': 'account-multiple',
   'lock.fill': 'lock',
+  'clock': 'clock-outline',
   'xmark': 'close',
   'person.line.dotted.person.fill': 'account-group',
   'line.3.horizontal': 'drag-horizontal-variant',
