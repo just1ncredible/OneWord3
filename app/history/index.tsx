@@ -1,14 +1,7 @@
-import { router, Stack } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { router } from 'expo-router';
+import { useMemo, useState } from 'react';
 import { Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
-import Animated, {
-  FadeIn,
-  interpolate,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-  type SharedValue,
-} from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useGame, type HistoryEntry } from '@/components/game-provider';
 import { useTheme } from '@/components/theme-provider';
 import { radius, space, type } from '@/constants/theme';
@@ -33,22 +26,6 @@ function pad(n: number) {
 function parseISO(iso: string) {
   const [y, m, d] = iso.split('-').map(Number);
   return { y, m: m - 1, d };
-}
-
-function AnimatedHeaderTitle({ scrollY }: { scrollY: SharedValue<number> }) {
-  const { colors } = useTheme();
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.value, [44, 68], [0, 1], 'clamp'),
-  }));
-  return (
-    <View pointerEvents="none">
-      <Animated.Text
-        style={[{ fontSize: type.body, fontWeight: '600', color: colors.text }, animatedStyle]}
-      >
-        Memories
-      </Animated.Text>
-    </View>
-  );
 }
 
 type ViewMode = 'list' | 'calendar';
@@ -106,20 +83,10 @@ function SegmentedToggle({
 export default function HistoryScreen() {
   const { history, submission } = useGame();
   const { colors } = useTheme();
-  const scrollY = useSharedValue(0);
   const [view, setView] = useState<ViewMode>('list');
   const { width } = useWindowDimensions();
   const isWideWeb = Platform.OS === 'web' && width > 700;
   const contentMaxWidth = isWideWeb ? 520 : undefined;
-
-  const scrollHandler = useAnimatedScrollHandler((event) => {
-    scrollY.value = event.contentOffset.y;
-  });
-
-  const headerTitle = useCallback(
-    () => <AnimatedHeaderTitle scrollY={scrollY} />,
-    [scrollY],
-  );
 
   const entries: HistoryEntry[] = submission
     ? [
@@ -134,12 +101,8 @@ export default function HistoryScreen() {
     : history;
 
   return (
-    <>
-      <Stack.Screen options={{ headerTitle, title: '' }} />
       <Animated.ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
         contentContainerStyle={{
           flexGrow: 1,
           paddingHorizontal: space.lg,
@@ -173,7 +136,6 @@ export default function HistoryScreen() {
         )}
         </View>
       </Animated.ScrollView>
-    </>
   );
 }
 

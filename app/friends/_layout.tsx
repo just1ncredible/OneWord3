@@ -6,21 +6,16 @@ export default function FriendsLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShadowVisible: false,
-        headerStyle: { backgroundColor: colors.background },
-        headerTitleStyle: { color: colors.text },
-        headerTintColor: colors.accent,
+        headerShown: false,
         contentStyle: { backgroundColor: colors.background },
       }}
     >
-      <Stack.Screen name="index" options={{ title: '' }} />
       <Stack.Screen
         name="manage"
         options={{
           presentation: 'formSheet',
           sheetGrabberVisible: false,
           sheetAllowedDetents: [1.0],
-          headerShown: false,
         }}
       />
     </Stack>

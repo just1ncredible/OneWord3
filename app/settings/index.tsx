@@ -1,15 +1,7 @@
-import { router, Stack } from 'expo-router';
-import { useCallback } from 'react';
-import { Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { router } from 'expo-router';
+import { Platform, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { type SymbolViewProps } from 'expo-symbols';
 import { Icon } from '@/components/icon';
-import Animated, {
-  interpolate,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-  type SharedValue,
-} from 'react-native-reanimated';
 import { useGame } from '@/components/game-provider';
 import { useTheme, type ThemeMode } from '@/components/theme-provider';
 import { radius, space, type } from '@/constants/theme';
@@ -20,46 +12,16 @@ const THEME_OPTIONS: { mode: ThemeMode; label: string; icon: SymbolViewProps['na
   { mode: 'dark', label: 'Dark', icon: 'moon.fill' },
 ];
 
-function AnimatedHeaderTitle({ scrollY }: { scrollY: SharedValue<number> }) {
-  const { colors } = useTheme();
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.value, [44, 68], [0, 1], 'clamp'),
-  }));
-  return (
-    <View pointerEvents="none">
-      <Animated.Text
-        style={[{ fontSize: type.body, fontWeight: '600', color: colors.text }, animatedStyle]}
-      >
-        Settings
-      </Animated.Text>
-    </View>
-  );
-}
-
 export default function SettingsScreen() {
   const { submission, resetToday } = useGame();
   const { colors, mode, setMode } = useTheme();
-  const scrollY = useSharedValue(0);
   const { width } = useWindowDimensions();
   const isWideWeb = Platform.OS === 'web' && width > 700;
   const contentMaxWidth = isWideWeb ? 520 : undefined;
 
-  const scrollHandler = useAnimatedScrollHandler((event) => {
-    scrollY.value = event.contentOffset.y;
-  });
-
-  const headerTitle = useCallback(
-    () => <AnimatedHeaderTitle scrollY={scrollY} />,
-    [scrollY],
-  );
-
   return (
-    <>
-      <Stack.Screen options={{ headerTitle, title: '' }} />
-      <Animated.ScrollView
+      <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
         contentContainerStyle={{
           flexGrow: 1,
           paddingHorizontal: space.lg,
@@ -127,8 +89,7 @@ export default function SettingsScreen() {
             </Card>
           </Section>
         </View>
-      </Animated.ScrollView>
-    </>
+      </ScrollView>
   );
 }
 

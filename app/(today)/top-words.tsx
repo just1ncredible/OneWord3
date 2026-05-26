@@ -1,4 +1,4 @@
-import { router, Stack } from 'expo-router';
+import { router } from 'expo-router';
 import { useMemo, useRef, useState } from 'react';
 import {
   type NativeScrollEvent,
@@ -10,7 +10,9 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGame } from '@/components/game-provider';
+import { Icon } from '@/components/icon';
 import { PrimaryButton } from '@/components/primary-button';
 import { useTheme } from '@/components/theme-provider';
 import { bondColors, radius, space, type, type Bond } from '@/constants/theme';
@@ -28,10 +30,24 @@ function bondForCount(count: number): Bond {
   return 'whisper';
 }
 
+function BackButton() {
+  const { colors } = useTheme();
+  return (
+    <Pressable
+      onPress={() => router.back()}
+      hitSlop={10}
+      style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start', marginLeft: -6 })}
+    >
+      <Icon name="chevron.left" size={26} tintColor={colors.accent} />
+    </Pressable>
+  );
+}
+
 export default function TopWordsScreen() {
   const { submission } = useGame();
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const isWideWeb = Platform.OS === 'web' && width > 700;
   const contentMaxWidth = isWideWeb ? 520 : undefined;
   const pageWidth = width;
@@ -71,33 +87,30 @@ export default function TopWordsScreen() {
 
   if (!submission) {
     return (
-      <>
-        <Stack.Screen options={{ title: '' }} />
-        <View style={{ flex: 1, backgroundColor: colors.background, paddingHorizontal: space.lg, paddingTop: space.lg, gap: space.lg }}>
-          <Text style={{ fontSize: 34, fontWeight: '700', color: colors.text, letterSpacing: 0.3 }}>
-            Today’s Words
-          </Text>
-          <Text style={{ fontSize: type.body, color: colors.muted, fontWeight: '500' }}>
-            Choose today’s word first.
-          </Text>
-          <PrimaryButton label="Go to Today" onPress={() => router.replace('/')} />
-        </View>
-      </>
+      <View style={{ flex: 1, backgroundColor: colors.background, paddingHorizontal: space.lg, paddingTop: insets.top + space.xs, gap: space.lg }}>
+        <BackButton />
+        <Text style={{ fontSize: 34, fontWeight: '700', color: colors.text, letterSpacing: 0.3 }}>
+          Today’s Words
+        </Text>
+        <Text style={{ fontSize: type.body, color: colors.muted, fontWeight: '500' }}>
+          Choose today’s word first.
+        </Text>
+        <PrimaryButton label="Go to Today" onPress={() => router.replace('/')} />
+      </View>
     );
   }
 
   return (
-    <>
-      <Stack.Screen options={{ title: '' }} />
-      <View style={{ flex: 1, backgroundColor: colors.background }}>
-        <View style={{ paddingHorizontal: space.lg, paddingTop: space.xs, gap: space.md }}>
-          <View style={{ width: '100%', alignSelf: 'center', maxWidth: contentMaxWidth, gap: space.md }}>
-            <Text style={{ fontSize: 34, fontWeight: '700', color: colors.text, letterSpacing: 0.3 }}>
-              Today’s Words
-            </Text>
-            <CategoryTabs categories={categories} active={active} onChange={goTo} />
-          </View>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <View style={{ paddingHorizontal: space.lg, paddingTop: insets.top + space.xs, gap: space.md }}>
+        <View style={{ width: '100%', alignSelf: 'center', maxWidth: contentMaxWidth, gap: space.md }}>
+          <BackButton />
+          <Text style={{ fontSize: 34, fontWeight: '700', color: colors.text, letterSpacing: 0.3 }}>
+            Today’s Words
+          </Text>
+          <CategoryTabs categories={categories} active={active} onChange={goTo} />
         </View>
+      </View>
 
         <ScrollView
           ref={scrollRef}
@@ -132,8 +145,7 @@ export default function TopWordsScreen() {
             );
           })}
         </ScrollView>
-      </View>
-    </>
+    </View>
   );
 }
 

@@ -6,15 +6,9 @@ export default function HistoryLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShadowVisible: false,
-        headerStyle: { backgroundColor: colors.background },
-        headerTitleStyle: { color: colors.text },
-        headerTintColor: colors.accent,
+        headerShown: false,
         contentStyle: { backgroundColor: colors.background },
       }}
-    >
-      <Stack.Screen name="index" options={{ title: '' }} />
-      <Stack.Screen name="word" options={{ title: '' }} />
-    </Stack>
+    />
   );
 }

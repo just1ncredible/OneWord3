@@ -1,15 +1,7 @@
-import { router, Stack } from 'expo-router';
-import { useCallback } from 'react';
+import { router } from 'expo-router';
 import { Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import { Icon } from '@/components/icon';
-import Animated, {
-  FadeIn,
-  interpolate,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-  type SharedValue,
-} from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useFriends } from '@/components/friends-provider';
 import { useGame } from '@/components/game-provider';
 import { useTheme } from '@/components/theme-provider';
@@ -17,38 +9,12 @@ import { space, type } from '@/constants/theme';
 import { tapLight } from '@/lib/haptics';
 import { type Friend } from '@/lib/mock-friends';
 
-function AnimatedHeaderTitle({ scrollY }: { scrollY: SharedValue<number> }) {
-  const { colors } = useTheme();
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.value, [44, 68], [0, 1], 'clamp'),
-  }));
-  return (
-    <View pointerEvents="none">
-      <Animated.Text
-        style={[{ fontSize: type.body, fontWeight: '600', color: colors.text }, animatedStyle]}
-      >
-        Friends
-      </Animated.Text>
-    </View>
-  );
-}
-
 export default function FriendsScreen() {
   const { submission } = useGame();
   const { colors } = useTheme();
-  const scrollY = useSharedValue(0);
   const { width } = useWindowDimensions();
   const isWideWeb = Platform.OS === 'web' && width > 700;
   const contentMaxWidth = isWideWeb ? 520 : undefined;
-
-  const scrollHandler = useAnimatedScrollHandler((event) => {
-    scrollY.value = event.contentOffset.y;
-  });
-
-  const headerTitle = useCallback(
-    () => <AnimatedHeaderTitle scrollY={scrollY} />,
-    [scrollY],
-  );
 
   const { friends } = useFriends();
   const myWord = submission?.word.toLowerCase() ?? null;
@@ -60,12 +26,8 @@ export default function FriendsScreen() {
   }
 
   return (
-    <>
-      <Stack.Screen options={{ headerTitle, title: '' }} />
       <Animated.ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
         contentContainerStyle={{
           flexGrow: 1,
           paddingHorizontal: space.lg,
@@ -119,7 +81,6 @@ export default function FriendsScreen() {
           </Animated.View>
         </View>
       </Animated.ScrollView>
-    </>
   );
 }
 

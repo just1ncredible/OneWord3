@@ -1,10 +1,24 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { Platform, Pressable, ScrollView, Share, Text, View, useWindowDimensions } from 'react-native';
 import { useGame, type HistoryEntry } from '@/components/game-provider';
+import { Icon } from '@/components/icon';
 import { useTheme } from '@/components/theme-provider';
 import { radius, space, type } from '@/constants/theme';
 import { tapLight } from '@/lib/haptics';
 import type { WordStats } from '@/lib/mock-stats';
+
+function BackButton() {
+  const { colors } = useTheme();
+  return (
+    <Pressable
+      onPress={() => router.back()}
+      hitSlop={10}
+      style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start', marginLeft: -6 })}
+    >
+      <Icon name="chevron.left" size={26} tintColor={colors.accent} />
+    </Pressable>
+  );
+}
 
 const MONTHS_LONG = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -79,11 +93,12 @@ export default function WordDetailScreen() {
           width: '100%',
           alignSelf: 'center',
           maxWidth: contentMaxWidth,
-          paddingTop: space.xxl,
+          paddingTop: space.sm,
           gap: space.xl,
         }}
       >
-        <View style={{ alignItems: 'center', gap: space.sm }}>
+        <BackButton />
+        <View style={{ alignItems: 'center', gap: space.sm, paddingTop: space.lg }}>
           <Text
             style={{
               fontSize: type.small,

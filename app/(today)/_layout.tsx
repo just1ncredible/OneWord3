@@ -6,17 +6,9 @@ export default function TodayLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShadowVisible: false,
-        headerStyle: { backgroundColor: colors.background },
-        headerTitleStyle: { color: colors.text },
-        headerTintColor: colors.accent,
-        headerBackButtonDisplayMode: 'minimal',
+        headerShown: false,
         contentStyle: { backgroundColor: colors.background },
       }}
-    >
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="result" options={{ headerShown: false }} />
-      <Stack.Screen name="top-words" options={{ title: '' }} />
-    </Stack>
+    />
   );
 }
