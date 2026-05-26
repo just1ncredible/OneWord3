@@ -15,6 +15,7 @@ const SF_TO_MCI: Partial<Record<IconName, MciName>> = {
   'person.fill': 'account',
   'checkmark': 'check',
   'chevron.right': 'chevron-right',
+  'chevron.left': 'chevron-left',
   'arrow.counterclockwise': 'refresh',
   'info.circle': 'information-outline',
   'person.badge.plus': 'account-plus',
